@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student List - BIS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --chocolate: #3E2723;
+            --cream: #FFF8E1;
+            --gold: #FFB300;
+            --white: #ffffff;
+            --red: #c62828;
+            --green: #2e7d32;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #fcfaf5; padding: 15px; }
+
+        .header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--chocolate); }
+        .back-btn { font-size: 24px; color: var(--chocolate); text-decoration: none; }
+
+        .controls { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .search-box, .filter-box { padding: 12px; border-radius: 10px; border: 1px solid #ddd; outline: none; }
+
+        .student-card {
+            background: var(--white); padding: 12px; border-radius: 12px;
+            margin-bottom: 10px; display: flex; align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); border-left: 5px solid var(--chocolate);
+            cursor: pointer;
+        }
+
+        .stu-img-mini { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; margin-right: 12px; border: 1px solid #eee; }
+        .stu-details { flex-grow: 1; }
+        .stu-details h4 { color: var(--chocolate); font-size: 15px; }
+        .stu-details p { font-size: 11px; color: #777; }
+
+        .delete-btn { color: var(--red); padding: 10px; font-size: 18px; cursor: pointer; }
+
+        /* Modal Styling */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center;
+            z-index: 1000; padding: 20px;
+        }
+        .modal-content {
+            background: white; width: 100%; max-width: 400px; border-radius: 25px;
+            padding: 20px; position: relative; overflow-y: auto; max-height: 90vh;
+        }
+        .close-modal { position: absolute; top: 15px; right: 20px; font-size: 24px; color: #999; cursor: pointer; }
+        
+        .modal-header { text-align: center; margin-bottom: 20px; }
+        .modal-img { width: 110px; height: 110px; border-radius: 50%; object-fit: cover; border: 4px solid var(--cream); }
+        
+        .detail-row { 
+            display: flex; justify-content: space-between; align-items: center; padding: 10px 0; 
+            border-bottom: 1px solid #f0f0f0; font-size: 14px; 
+        }
+        .detail-row span:first-child { color: #888; font-weight: 500; }
+        
+        /* Edit Inputs */
+        .edit-input {
+            border: 1px solid #ddd; padding: 5px; border-radius: 5px;
+            width: 60%; text-align: right; color: var(--chocolate); font-weight: 600;
+        }
+
+        .action-btn {
+            display: block; width: 100%; padding: 12px; border-radius: 10px;
+            text-align: center; text-decoration: none; font-weight: bold; margin-top: 20px;
+            cursor: pointer; border: none; font-size: 16px;
+        }
+        .edit-mode-btn { background: var(--gold); color: white; }
+        .save-mode-btn { background: var(--green); color: white; }
+
+        .empty-state { text-align: center; margin-top: 50px; color: #888; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <a href="principal_dash.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+        <h2>Student List</h2>
+    </div>
+
+    <div class="controls">
+        <input type="text" id="searchInput" class="search-box" placeholder="Search name..." onkeyup="filterStudents()">
+        <select id="classFilter" class="filter-box" onchange="filterStudents()">
+            <option value="All">All</option>
+            <option value="JSS1">JSS 1</option><option value="JSS2">JSS 2</option><option value="JSS3">JSS 3</option>
+            <option value="SS1">SS 1</option><option value="SS2">SS 2</option><option value="SS3">SS 3</option>
+        </select>
+    </div>
+
+    <div id="studentContainer"></div>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            
+            <div class="modal-header">
+                <img src="" id="modalImg" class="modal-img">
+                <h2 id="modalName" style="color: var(--chocolate); margin-top: 10px;">Name</h2>
+                <p id="modalID" style="color: var(--gold); font-weight: bold; font-size: 13px;">ID: ---</p>
+            </div>
+
+            <div class="modal-body" id="modalBody">
+                </div>
+
+            <button id="modalActionBtn" class="action-btn edit-mode-btn" onclick="toggleEdit()">
+                <i class="fas fa-edit"></i> Edit Student Details
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let currentEditingId = null;
+        let isEditMode = false;
+
+        function loadStudents() {
+            const container = document.getElementById('studentContainer');
+            const allUsers = JSON.parse(localStorage.getItem('bis_users')) || [];
+            const students = allUsers.filter(u => u.role === 'student');
+
+            if (students.length === 0) {
+                container.innerHTML = `<div class="empty-state"><p>No students registered.</p></div>`;
+                return;
+            }
+
+            students.sort((a, b) => a.fullName.localeCompare(b.fullName));
+
+            container.innerHTML = students.map(s => `
+                <div class="student-card" data-class="${s.studentClass}" data-name="${s.fullName.toLowerCase()}">
+                    <img src="${s.photo || 'https://via.placeholder.com/150'}" class="stu-img-mini" onclick="viewStudent('${s.username}')">
+                    <div class="stu-details" onclick="viewStudent('${s.username}')">
+                        <h4>${s.fullName}</h4>
+                        <p>${s.username} | ${s.studentClass}</p>
+                    </div>
+                    <div class="delete-btn" onclick="deleteStudent(event, '${s.username}')">
+                        <i class="fas fa-trash-alt"></i>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function viewStudent(id) {
+            const allUsers = JSON.parse(localStorage.getItem('bis_users')) || [];
+            const s = allUsers.find(u => u.username === id);
+            if (!s) return;
+
+            currentEditingId = id;
+            isEditMode = false;
+            
+            document.getElementById('modalImg').src = s.photo || 'https://via.placeholder.com/150';
+            document.getElementById('modalName').innerText = s.fullName;
+            document.getElementById('modalID').innerText = s.username;
+            
+            renderDetails(s);
+
+            const btn = document.getElementById('modalActionBtn');
+            btn.innerHTML = '<i class="fas fa-edit"></i> Edit Student Details';
+            btn.className = 'action-btn edit-mode-btn';
+
+            document.getElementById('modalOverlay').style.display = 'flex';
+        }
+
+        function renderDetails(s) {
+            const fields = [
+                { label: 'Full Name', key: 'fullName', val: s.fullName },
+                { label: 'Class', key: 'studentClass', val: s.studentClass },
+                { label: 'Gender', key: 'gender', val: s.gender },
+                { label: 'Date of Birth', key: 'dob', val: s.dob },
+                { label: 'Guardian', key: 'parentName', val: s.parentName },
+                { label: 'Phone', key: 'parentPhone', val: s.parentPhone },
+                { label: 'Address', key: 'address', val: s.address }
+            ];
+
+            const html = fields.map(f => `
+                <div class="detail-row">
+                    <span>${f.label}</span>
+                    ${isEditMode ? 
+                        `<input type="text" class="edit-input" id="edit_${f.key}" value="${f.val || ''}">` : 
+                        `<span style="color: var(--chocolate); font-weight: 600;">${f.val || 'Not Set'}</span>`
+                    }
+                </div>
+            `).join('');
+            
+            document.getElementById('modalBody').innerHTML = html;
+        }
+
+        function toggleEdit() {
+            const allUsers = JSON.parse(localStorage.getItem('bis_users')) || [];
+            const studentIdx = allUsers.findIndex(u => u.username === currentEditingId);
+            const s = allUsers[studentIdx];
+
+            if (!isEditMode) {
+                // Switch to Edit Mode
+                isEditMode = true;
+                renderDetails(s);
+                const btn = document.getElementById('modalActionBtn');
+                btn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
+                btn.className = 'action-btn save-mode-btn';
+            } else {
+                // Save Logic
+                s.fullName = document.getElementById('edit_fullName').value;
+                s.studentClass = document.getElementById('edit_studentClass').value;
+                s.gender = document.getElementById('edit_gender').value;
+                s.dob = document.getElementById('edit_dob').value;
+                s.parentName = document.getElementById('edit_parentName').value;
+                s.parentPhone = document.getElementById('edit_parentPhone').value;
+                s.address = document.getElementById('edit_address').value;
+
+                allUsers[studentIdx] = s;
+                localStorage.setItem('bis_users', JSON.stringify(allUsers));
+                
+                alert("Details Updated!");
+                isEditMode = false;
+                loadStudents(); // Refresh background list
+                viewStudent(currentEditingId); // Refresh modal view
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').style.display = 'none';
+        }
+
+        function deleteStudent(event, id) {
+            event.stopPropagation();
+            if (confirm("Permanently delete this student?")) {
+                let allUsers = JSON.parse(localStorage.getItem('bis_users')) || [];
+                allUsers = allUsers.filter(u => u.username !== id);
+                localStorage.setItem('bis_users', JSON.stringify(allUsers));
+                loadStudents();
+            }
+        }
+
+        function filterStudents() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const classFilter = document.getElementById('classFilter').value;
+            const cards = document.querySelectorAll('.student-card');
+
+            cards.forEach(card => {
+                const name = card.getAttribute('data-name');
+                const sClass = card.getAttribute('data-class');
+                card.style.display = (name.includes(query) && (classFilter === "All" || sClass === classFilter)) ? "flex" : "none";
+            });
+        }
+
+        window.onload = loadStudents;
+    </script>
+</body>
+</html>

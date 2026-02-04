@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Student - BIS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --chocolate: #3E2723;
+            --cream: #FFF8E1;
+            --gold: #FFB300;
+            --white: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #fcfaf5; padding: 20px; }
+
+        .header { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; color: var(--chocolate); }
+        .back-btn { font-size: 24px; color: var(--chocolate); text-decoration: none; }
+
+        .form-card {
+            background: var(--white);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            max-width: 600px;
+            margin: auto;
+        }
+
+        .photo-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .photo-preview {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: #eee;
+            border: 2px dashed var(--chocolate);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        .photo-preview img { width: 100%; height: 100%; object-fit: cover; }
+        .upload-label { font-size: 12px; color: var(--chocolate); cursor: pointer; text-decoration: underline; }
+
+        .section-title { 
+            font-size: 14px; 
+            color: var(--gold); 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+            margin: 20px 0 10px 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; margin-bottom: 5px; font-weight: 600; color: var(--chocolate); font-size: 13px; }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1.5px solid #d7ccc8;
+            border-radius: 10px;
+            font-size: 15px;
+            outline: none;
+            background: #fff;
+        }
+
+        .row { display: flex; gap: 10px; }
+        .row .input-group { flex: 1; }
+
+        .fee-preview {
+            background: var(--cream);
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 5px;
+            font-size: 13px;
+            color: #5d4037;
+            font-weight: bold;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--chocolate);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <a href="principal_dash.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+        <h2>Student Registration</h2>
+    </div>
+
+    <div class="form-card">
+        <form id="addStudentForm">
+            <div class="photo-section">
+                <div class="photo-preview" id="imageDisplay">
+                    <i class="fas fa-camera" style="font-size: 30px; color: #ccc;"></i>
+                </div>
+                <label for="stuPhoto" class="upload-label">Upload Passport</label>
+                <input type="file" id="stuPhoto" accept="image/*" style="display: none;" onchange="previewImage(this)">
+            </div>
+
+            <p class="section-title">Academic Details</p>
+            <div class="row">
+                <div class="input-group">
+                    <label>Student ID (Username)</label>
+                    <input type="text" id="stuID" readonly>
+                </div>
+                <div class="input-group">
+                    <label>Class</label>
+                    <select id="stuClass" onchange="updateFeePreview()" required>
+                        <option value="">Select</option>
+                        <option value="JSS1">JSS 1</option><option value="JSS2">JSS 2</option><option value="JSS3">JSS 3</option>
+                        <option value="SS1">SS 1</option><option value="SS2">SS 2</option><option value="SS3">SS 3</option>
+                    </select>
+                </div>
+            </div>
+
+            <p class="section-title">Personal Information</p>
+            <div class="input-group">
+                <label>Full Name (Surname First)</label>
+                <input type="text" id="stuName" placeholder="e.g. Musa Ibrahim John" required>
+            </div>
+
+            <div class="row">
+                <div class="input-group">
+                    <label>Set Login Password</label>
+                    <input type="password" id="stuPass" placeholder="Create password" required>
+                </div>
+                <div class="input-group">
+                    <label>Gender</label>
+                    <select id="stuGender" required>
+                        <option value="">Select</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Date of Birth</label>
+                <input type="date" id="stuDOB" required>
+            </div>
+
+            <p class="section-title">Guardian Information</p>
+            <div class="input-group">
+                <label>Parent/Guardian Name</label>
+                <input type="text" id="parentName" placeholder="Full Name" required>
+            </div>
+            <div class="input-group">
+                <label>Emergency Phone Number</label>
+                <input type="tel" id="parentPhone" placeholder="08012345678" required>
+            </div>
+            <div class="input-group">
+                <label>Home Address</label>
+                <textarea id="stuAddress" rows="2" placeholder="Residential Address"></textarea>
+            </div>
+
+            <p class="section-title">Financials</p>
+            <div class="input-group">
+                <label>Initial Deposit (₦)</label>
+                <input type="number" id="stuDeposit" placeholder="0" value="0">
+                <div id="feePreview" class="fee-preview">Total Fees: ₦0.00</div>
+            </div>
+
+            <button type="submit" class="submit-btn">Complete Registration</button>
+        </form>
+    </div>
+
+    <script>
+        let base64Image = "";
+
+        window.onload = function() {
+            generateID();
+        };
+
+        function generateID() {
+            const users = JSON.parse(localStorage.getItem('bis_users')) || [];
+            // Count only users that are strictly students
+            const studentCount = users.filter(u => u.role === 'student').length;
+            document.getElementById('stuID').value = "BIS/STU/" + String(studentCount + 1).padStart(3, '0');
+        }
+
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('imageDisplay').innerHTML = `<img src="${e.target.result}">`;
+                    base64Image = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function updateFeePreview() {
+            const sClass = document.getElementById('stuClass').value;
+            let total = 0;
+            if(sClass.startsWith("SS")) total = 82000;
+            else if(sClass.startsWith("JSS")) total = 77000;
+            document.getElementById('feePreview').innerText = "Total Fees: ₦" + total.toLocaleString();
+            return total;
+        }
+
+        document.getElementById('addStudentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const studentID = document.getElementById('stuID').value;
+            const studentPass = document.getElementById('stuPass').value;
+
+            const newStudent = {
+                fullName: document.getElementById('stuName').value.trim(),
+                username: studentID, 
+                password: studentPass,
+                class: document.getElementById('stuClass').value, 
+                dob: document.getElementById('stuDOB').value,
+                gender: document.getElementById('stuGender').value,
+                parentName: document.getElementById('parentName').value,
+                parentPhone: document.getElementById('parentPhone').value,
+                address: document.getElementById('stuAddress').value,
+                amountPaid: parseFloat(document.getElementById('stuDeposit').value) || 0,
+                photo: base64Image || "", 
+                role: 'student' // Strictly lowercase to match login logic
+            };
+
+            // Get users from the EXACT key the login uses
+            let users = JSON.parse(localStorage.getItem('bis_users')) || [];
+            
+            // Safety check: Prevent duplicate IDs if page wasn't refreshed
+            if (users.some(u => u.username === studentID)) {
+                alert("This ID already exists. Refreshing ID...");
+                generateID();
+                return;
+            }
+
+            users.push(newStudent);
+            localStorage.setItem('bis_users', JSON.stringify(users));
+
+            alert("Registration Complete!\nID: " + newStudent.username + "\nPass: " + newStudent.password);
+            window.location.href = 'principal_dash.html';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+<script>
+const users = [
+  {
+    username: "Suzan Yusuf",
+    fullName: "Suzan Yusuf",
+    password: "BIS2026",
+    role: "proprietress"
+  },
+  {
+    username: "David Osita",
+    fullName: "David Osita",
+    password: "BIS2026",
+    role: "principal"
+  },
+  {
+    username: "John achiloko",
+    fullName: "John achiloko",
+    password: "john12345",
+    role: "teacher",
+    class: "SSS2"
+  },
+  {
+    username: "BIS/STU/001",
+    fullName: "Student One",
+    password: "STU001",
+    role: "student",
+    class: "SSS2"
+  }
+];
+
+localStorage.setItem("bis_users", JSON.stringify(users));
+
+alert("Dev accounts loaded ✅");
+</script>

@@ -1,0 +1,31 @@
+{
+  "users": [
+    {
+      "username": "Suzan Yusuf",
+      "password": "BIS2026",
+      "role": "proprietress",
+      "fullName": "Mrs. Suzan Yusuf",
+      "section": "Secondary"
+    },
+    {
+      "username": "David Osita",
+      "password": "BIS2026",
+      "role": "principal",
+      "fullName": "Mr. David Osita",
+      "section": "Secondary"
+    },
+    {
+      "username": "John Achiloko",
+      "password": "john12345",
+      "role": "teacher",
+      "fullName": "Mr. John Achiloko",
+      "subjects": [
+        "Basic Science",
+        "Basic Technology",
+        "Computer Science",
+        "Physics"
+      ],
+      "type": "Subject Teacher"
+    }
+  ]
+}

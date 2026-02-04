@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - BIS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --chocolate: #3E2723;
+            --cream: #FFF8E1;
+            --gold: #FFB300;
+            --white: #ffffff;
+            --bg: #fcfaf5;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg); color: var(--chocolate); }
+
+        .header {
+            background: var(--chocolate);
+            padding: 20px;
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .header a { color: var(--white); text-decoration: none; font-size: 20px; }
+
+        .profile-card {
+            background: var(--white);
+            margin: 20px;
+            padding: 30px 20px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .avatar {
+            width: 80px;
+            height: 80px;
+            background: var(--cream);
+            color: var(--gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            margin: 0 auto 15px;
+            border: 2px solid var(--gold);
+        }
+
+        .info-list {
+            margin: 20px;
+            background: var(--white);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .info-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .info-item:last-child { border-bottom: none; }
+        .info-item label { font-size: 12px; color: #888; text-transform: uppercase; font-weight: bold; }
+        .info-item span { font-weight: 600; color: var(--chocolate); }
+
+        .action-btn {
+            margin: 20px;
+            padding: 15px;
+            background: var(--chocolate);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            width: calc(100% - 40px);
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Modal Styles */
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center;
+            padding: 20px;
+        }
+        .modal-content { background: white; width: 100%; max-width: 350px; padding: 25px; border-radius: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 12px; margin-bottom: 5px; color: #888; }
+        .form-group input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <a href="student_dash.html"><i class="fas fa-arrow-left"></i></a>
+        <h2>My Profile</h2>
+    </div>
+
+    <div class="profile-card">
+        <div class="avatar">
+            <i class="fas fa-user-graduate"></i>
+        </div>
+        <h3 id="profileName">Loading...</h3>
+        <p id="profileID" style="color: var(--gold); font-size: 14px; font-weight: bold;">ID: ---</p>
+    </div>
+
+    <div class="info-list">
+        <div class="info-item">
+            <label>Current Class</label>
+            <span id="infoClass">---</span>
+        </div>
+        <div class="info-item">
+            <label>Account Role</label>
+            <span>Student</span>
+        </div>
+        <div class="info-item">
+            <label>School</label>
+            <span>Benaiah Intl School</span>
+        </div>
+    </div>
+
+    <button class="action-btn" onclick="toggleModal(true)">
+        <i class="fas fa-user-edit"></i> Edit Full Name
+    </button>
+
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <h3 style="margin-bottom: 15px;">Update Profile</h3>
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="newNameInput">
+            </div>
+            <button class="action-btn" style="margin: 10px 0; width: 100%;" onclick="updateProfile()">Save Changes</button>
+            <button onclick="toggleModal(false)" style="width: 100%; background: none; border: none; color: #888; margin-top: 5px;">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        window.onload = function() {
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            if (!user) { window.location.href = 'index.html'; return; }
+
+            document.getElementById('profileName').innerText = user.fullName;
+            document.getElementById('profileID').innerText = "ID: " + user.username;
+            document.getElementById('infoClass').innerText = user.class || "Not Assigned";
+            document.getElementById('newNameInput').value = user.fullName;
+        };
+
+        function toggleModal(show) {
+            document.getElementById('editModal').style.display = show ? 'flex' : 'none';
+        }
+
+        function updateProfile() {
+            const newName = document.getElementById('newNameInput').value;
+            if (!newName) return alert("Name cannot be empty");
+
+            let users = JSON.parse(localStorage.getItem('bis_users')) || [];
+            let currentUser = JSON.parse(localStorage.getItem('currentUser'));
+
+            // Update in users database
+            const idx = users.findIndex(u => u.username === currentUser.username);
+            if (idx !== -1) {
+                users[idx].fullName = newName;
+                localStorage.setItem('bis_users', JSON.stringify(users));
+                
+                // Update in session
+                currentUser.fullName = newName;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                alert("Profile Updated!");
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>

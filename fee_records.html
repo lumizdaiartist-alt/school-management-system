@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fee Records - BIS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --chocolate: #3E2723;
+            --cream: #FFF8E1;
+            --gold: #FFB300;
+            --white: #ffffff;
+            --green: #2e7d32;
+            --red: #c62828;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #fcfaf5; padding: 15px; }
+
+        .header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--chocolate); }
+        .back-btn { font-size: 24px; color: var(--chocolate); text-decoration: none; }
+
+        /* Summary Section */
+        .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .sum-card { background: var(--white); padding: 15px; border-radius: 12px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .sum-card i { font-size: 20px; margin-bottom: 5px; }
+        .sum-card h3 { font-size: 18px; color: var(--chocolate); }
+        .sum-card p { font-size: 11px; color: #888; }
+
+        .search-box { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ddd; margin-bottom: 15px; outline: none; }
+
+        .fee-card {
+            background: var(--white); padding: 15px; border-radius: 12px;
+            margin-bottom: 10px; display: flex; justify-content: space-between;
+            align-items: center; border-left: 5px solid var(--gold);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .student-info h4 { color: var(--chocolate); font-size: 15px; }
+        .student-info p { font-size: 12px; color: #666; }
+        .status { font-size: 10px; font-weight: bold; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; margin-top: 5px; display: inline-block; }
+        .paid { background: #e8f5e9; color: var(--green); }
+        .debt { background: #ffebee; color: var(--red); }
+        
+        .empty-msg { text-align: center; color: #999; margin-top: 50px; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <a href="proprietress_dash.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+        <h2>Fee Records</h2>
+    </div>
+
+    <div class="summary-grid">
+        <div class="sum-card" style="grid-column: span 2;">
+            <p>Total Revenue Collected</p>
+            <h3 id="totalRevenue">₦0.00</h3>
+        </div>
+        <div class="sum-card">
+            <i class="fas fa-check-circle" style="color: var(--green);"></i>
+            <h3 id="paidCount">0</h3>
+            <p>Fully Paid</p>
+        </div>
+        <div class="sum-card">
+            <i class="fas fa-exclamation-circle" style="color: var(--red);"></i>
+            <h3 id="debtCount">0</h3>
+            <p>With Balances</p>
+        </div>
+    </div>
+
+    <input type="text" class="search-box" id="feeSearch" placeholder="Search student name..." onkeyup="filterFees()">
+
+    <div id="feeList">
+        </div>
+
+    <script>
+        function displayFees() {
+            const list = document.getElementById('feeList');
+            // Get our real database of users
+            const allUsers = JSON.parse(localStorage.getItem('bis_users')) || [];
+            // Filter only students
+            const students = allUsers.filter(u => u.role === 'student');
+
+            if (students.length === 0) {
+                list.innerHTML = `<p class="empty-msg">No students registered yet.</p>`;
+                return;
+            }
+
+            let totalRev = 0;
+            let paidCount = 0;
+            let debtCount = 0;
+
+            list.innerHTML = students.map(student => {
+                // Logic for Prices
+                // If class starts with 'SS', it's 82k. Otherwise (JSS), it's 77k.
+                const classType = student.studentClass.toUpperCase();
+                const totalExpected = classType.startsWith("SS") ? 82000 : 77000;
+                
+                // Amount paid (we will update this from Principal dash later)
+                const amountPaid = student.amountPaid || 0; 
+                const balance = totalExpected - amountPaid;
+
+                totalRev += amountPaid;
+                if(balance <= 0) paidCount++; else debtCount++;
+
+                return `
+                    <div class="fee-card">
+                        <div class="student-info">
+                            <h4>${student.fullName}</h4>
+                            <p>${student.studentClass} | Bill: ₦${totalExpected.toLocaleString()}</p>
+                            <span class="status ${balance <= 0 ? 'paid' : 'debt'}">
+                                ${balance <= 0 ? 'Fully Paid' : 'Owes: ₦' + balance.toLocaleString()}
+                            </span>
+                        </div>
+                        <div class="amount-info" style="text-align: right;">
+                            <p style="font-size: 11px; color: #888;">Paid</p>
+                            <h4 style="color: var(--chocolate)">₦${amountPaid.toLocaleString()}</h4>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('totalRevenue').innerText = "₦" + totalRev.toLocaleString();
+            document.getElementById('paidCount').innerText = paidCount;
+            document.getElementById('debtCount').innerText = debtCount;
+        }
+
+        function filterFees() {
+            const query = document.getElementById('feeSearch').value.toLowerCase();
+            const cards = document.getElementsByClassName('fee-card');
+            
+            Array.from(cards).forEach(card => {
+                const name = card.querySelector('h4').innerText.toLowerCase();
+                card.style.display = name.includes(query) ? 'flex' : 'none';
+            });
+        }
+
+        window.onload = displayFees;
+    </script>
+</body>
+</html>

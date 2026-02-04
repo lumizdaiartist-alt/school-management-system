@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Admin - BIS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --chocolate: #3E2723;
+            --cream: #FFF8E1;
+            --gold: #FFB300;
+            --white: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #fcfaf5; padding: 20px; }
+
+        .header { display: flex; align-items: center; gap: 15px; margin-bottom: 30px; color: var(--chocolate); }
+        .back-btn { font-size: 24px; cursor: pointer; color: var(--chocolate); text-decoration: none; }
+
+        .form-card {
+            background: var(--white);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--chocolate); }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1.5px solid #d7ccc8;
+            border-radius: 10px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        input:focus { border-color: var(--chocolate); }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--chocolate);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .submit-btn:active { transform: scale(0.98); }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <a href="proprietress_dash.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+        <h2>Register New Admin</h2>
+    </div>
+
+    <div class="form-card">
+        <form id="addAdminForm">
+            <div class="input-group">
+                <label>Admin Full Name</label>
+                <input type="text" id="adminName" placeholder="Enter Full Name" required>
+            </div>
+
+            <div class="input-group">
+                <label>Admin ID (Auto-Generated)</label>
+                <input type="text" id="adminID" readonly>
+            </div>
+
+            <div class="input-group">
+                <label>Set Password</label>
+                <input type="password" id="adminPass" placeholder="••••••••" required>
+            </div>
+
+            <button type="submit" class="submit-btn">Create Admin Account</button>
+        </form>
+    </div>
+
+    <script>
+        // Auto-generate a unique ID based on timestamp for simplicity
+        const uniqueID = "BIS/ADM/" + Math.floor(Math.random() * 900 + 100);
+        document.getElementById('adminID').value = uniqueID;
+
+        document.getElementById('addAdminForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const newAdmin = {
+                fullName: document.getElementById('adminName').value,
+                username: document.getElementById('adminID').value,
+                password: document.getElementById('adminPass').value,
+                role: 'admin' // Set role specifically as admin
+            };
+
+            // Save to the same shared "bis_users" database
+            let users = JSON.parse(localStorage.getItem('bis_users')) || [];
+            users.push(newAdmin);
+            localStorage.setItem('bis_users', JSON.stringify(users));
+
+            alert("New Admin Registered!");
+            window.location.href = 'proprietress_dash.html';
+        });
+    </script>
+</body>
+</html>

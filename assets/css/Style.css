@@ -1,0 +1,86 @@
+/* Color Palette: Chocolate & Cream */
+:root {
+    --primary-brown: #3E2723;
+    --bg-cream: #FFF8E1;
+    --accent-gold: #FFB300;
+    --text-dark: #212121;
+    --white: #ffffff;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: var(--bg-cream);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    padding: 20px;
+}
+
+.login-container {
+    background: var(--white);
+    width: 100%;
+    max-width: 400px;
+    padding: 40px 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(62, 39, 35, 0.1);
+    text-align: center;
+}
+
+.logo-placeholder {
+    width: 80px;
+    height: 80px;
+    background: var(--primary-brown);
+    color: var(--accent-gold);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 24px;
+    margin: 0 auto 15px;
+}
+
+h2 { color: var(--primary-brown); margin-bottom: 5px; font-size: 22px; }
+.motto { color: #6d4c41; font-style: italic; font-size: 13px; margin-bottom: 30px; }
+
+.input-group { text-align: left; margin-bottom: 20px; }
+.input-group label { display: block; margin-bottom: 8px; color: var(--primary-brown); font-weight: 600; font-size: 14px; }
+
+input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1.5px solid #d7ccc8;
+    border-radius: 10px;
+    font-size: 16px;
+    outline: none;
+    transition: 0.3s;
+}
+
+input:focus { border-color: var(--primary-brown); background: #fffdf7; }
+
+.login-btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--primary-brown);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: 0.3s;
+}
+
+.login-btn:active { transform: scale(0.98); background: #2d1b19; }
+
+.footer-links { margin-top: 25px; font-size: 13px; }
+.footer-links a { color: var(--primary-brown); text-decoration: none; }
+.footer-links p { margin-top: 10px; color: #8d6e63; }

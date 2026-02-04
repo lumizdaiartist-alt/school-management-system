@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIS Admin - Proprietress</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --chocolate: #3E2723;
+            --cream: #FFF8E1;
+            --gold: #FFB300;
+            --white: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #fcfaf5; overflow-x: hidden; }
+
+        /* --- NAVIGATION BAR --- */
+        .navbar {
+            background: var(--chocolate);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--cream);
+            position: sticky; top: 0; z-index: 1000;
+        }
+        .menu-btn { font-size: 24px; cursor: pointer; }
+        .school-name { font-size: 18px; font-weight: bold; }
+        .settings-btn { font-size: 20px; cursor: pointer; color: var(--gold); }
+
+        /* --- SIDE MENU --- */
+        .side-menu {
+            position: fixed; top: 0; left: -280px; width: 280px; height: 100%;
+            background: var(--chocolate); color: var(--white); transition: 0.3s;
+            z-index: 2000; padding: 40px 20px; box-shadow: 5px 0 15px rgba(0,0,0,0.3);
+        }
+        .side-menu.active { left: 0; }
+        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 25px; }
+        .menu-header { margin-bottom: 30px; border-bottom: 1px solid #5d4037; padding-bottom: 20px; }
+        .menu-header h3 { color: var(--gold); }
+        .menu-link {
+            display: flex; align-items: center; gap: 15px; padding: 15px 10px;
+            color: var(--cream); text-decoration: none; font-size: 16px; border-radius: 8px;
+            margin-bottom: 5px;
+        }
+        .menu-link i { width: 25px; color: var(--gold); }
+        .logout-link { color: #ff8a80; margin-top: 50px; }
+
+        /* --- CONTENT --- */
+        .content { padding: 20px; }
+        .welcome-card {
+            background: var(--white); padding: 25px; border-radius: 15px;
+            margin-bottom: 20px; border-left: 8px solid var(--chocolate);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .welcome-card h2 { color: var(--chocolate); font-size: 20px; }
+        .motto { font-style: italic; font-size: 12px; color: #795548; margin-top: 5px; }
+
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .stat-box {
+            background: var(--white); padding: 20px; border-radius: 15px;
+            text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .stat-box i { font-size: 24px; color: var(--chocolate); margin-bottom: 10px; }
+        .stat-box h4 { font-size: 22px; margin-bottom: 5px; color: var(--chocolate); }
+        .stat-box p { font-size: 11px; color: #888; }
+
+        .term-box {
+            grid-column: span 2; position: relative;
+            background: var(--white); padding: 20px; border-radius: 15px;
+            text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            margin-top: 10px;
+        }
+        .edit-btn { position: absolute; top: 10px; right: 15px; color: var(--gold); cursor: pointer; font-size: 14px; }
+
+        .overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 1500;
+        }
+        .overlay.active { display: block; }
+
+        /* --- SETTINGS MODAL --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center;
+            z-index: 3000; padding: 20px;
+        }
+        .modal-content {
+            background: white; width: 100%; max-width: 350px; border-radius: 20px;
+            padding: 25px; position: relative;
+        }
+        .close-modal { position: absolute; top: 15px; right: 20px; font-size: 20px; cursor: pointer; color: #999; }
+        
+        .settings-option {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 15px; background: #fcfaf5; border-radius: 12px;
+            margin-top: 15px; cursor: pointer; border: 1px solid #eee;
+        }
+        
+        .security-form { display: none; margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px; }
+        .security-form label { font-size: 11px; color: #888; text-transform: uppercase; font-weight: bold; }
+        .security-form input { 
+            width: 100%; padding: 12px; margin: 8px 0 15px 0; 
+            border: 1px solid #ddd; border-radius: 10px; outline: none; background: #fff;
+        }
+        .save-btn {
+            width: 100%; padding: 12px; background: var(--chocolate);
+            color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <i class="fas fa-bars menu-btn" onclick="toggleMenu()"></i>
+        <div class="school-name">BIS Portal</div>
+        <i class="fas fa-cog settings-btn" onclick="toggleSettings(true)"></i>
+    </div>
+
+    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+    <div class="side-menu" id="sideMenu">
+        <i class="fas fa-times close-btn" onclick="toggleMenu()"></i>
+        <div class="menu-header">
+            <h3 id="sideMenuName">Mrs. Suzan Yusuf</h3>
+            <p style="font-size: 11px;">Proprietress | Secondary Section</p>
+        </div>
+        <a href="#" class="menu-link"><i class="fas fa-home"></i> Home</a>
+        <a href="add_principal.html" class="menu-link"><i class="fas fa-user-tie"></i> Add Principal</a>
+        <a href="add_staff.html" class="menu-link"><i class="fas fa-user-plus"></i> Add Teacher/Admin</a>
+        <a href="staff_list.html" class="menu-link"><i class="fas fa-users-cog"></i> Staff List</a>
+        <a href="fee_records.html" class="menu-link"><i class="fas fa-coins"></i> Fee Records</a>
+        <a href="#" class="menu-link logout-link" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+
+    <div class="content">
+        <div class="welcome-card">
+            <h2 id="welcomeName">Welcome Mrs. Suzan Yusuf</h2>
+            <p class="motto">"Courage, Initiative and Success"</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-box">
+                <i class="fas fa-user-graduate"></i>
+                <h4 id="studentCount">0</h4>
+                <p>Students Registered</p>
+            </div>
+            
+            <div class="stat-box">
+                <i class="fas fa-chalkboard-teacher"></i>
+                <h4 id="teacherCount">0</h4>
+                <p>Teachers Registered</p>
+            </div>
+
+            <div class="stat-box" style="grid-column: span 2;">
+                <i class="fas fa-user-shield"></i>
+                <h4 id="adminCount">0</h4>
+                <p>Management (Admin/Principal)</p>
+            </div>
+
+            <div class="term-box">
+                <span class="edit-btn" onclick="editTerm()"><i class="fas fa-edit"></i> Edit</span>
+                <i class="fas fa-calendar-alt" style="color: var(--chocolate); font-size: 20px; margin-bottom: 5px;"></i>
+                <h4 id="displayTerm">Term 2</h4>
+                <p id="displaySession">Current Session: 2025/2026</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="toggleSettings(false)">&times;</span>
+            <h3 style="color: var(--chocolate); margin-bottom: 5px;">Profile Settings</h3>
+            
+            <div class="settings-option" onclick="toggleSecurityForm()">
+                <span><i class="fas fa-shield-alt" style="margin-right: 10px; color: var(--gold);"></i> Privacy & Security</span>
+                <i class="fas fa-chevron-down" style="font-size: 12px; color: #ccc;"></i>
+            </div>
+
+            <div id="securityForm" class="security-form">
+                <label>Change Full Name</label>
+                <input type="text" id="editPropName">
+                
+                <label>New Password</label>
+                <input type="password" id="editPropPass" placeholder="Enter new password">
+                
+                <button class="save-btn" onclick="updatePropSecurity()">Update Account</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleMenu() {
+            document.getElementById('sideMenu').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+
+        // Settings Functions
+        function toggleSettings(show) {
+            document.getElementById('settingsModal').style.display = show ? 'flex' : 'none';
+            if (!show) document.getElementById('securityForm').style.display = 'none';
+        }
+
+        function toggleSecurityForm() {
+            const form = document.getElementById('securityForm');
+            form.style.display = (form.style.display === 'block') ? 'none' : 'block';
+        }
+
+        function updatePropSecurity() {
+            const newName = document.getElementById('editPropName').value.trim();
+            const newPass = document.getElementById('editPropPass').value.trim();
+            
+            if (!newName) { alert("Name is required"); return; }
+
+            let users = JSON.parse(localStorage.getItem('bis_users')) || [];
+            let currentUser = JSON.parse(localStorage.getItem('currentUser'));
+
+            const userIndex = users.findIndex(u => u.username === currentUser.username);
+            if (userIndex !== -1) {
+                users[userIndex].fullName = newName;
+                if (newPass) users[userIndex].password = newPass;
+                localStorage.setItem('bis_users', JSON.stringify(users));
+
+                currentUser.fullName = newName;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+                alert("Profile Updated!");
+                location.reload();
+            }
+        }
+
+        function editTerm() {
+            const newTerm = prompt("Enter Current Term:", document.getElementById('displayTerm').innerText);
+            const newSession = prompt("Enter Current Session:", "2025/2026");
+            if (newTerm) document.getElementById('displayTerm').innerText = newTerm;
+            if (newSession) document.getElementById('displaySession').innerText = "Current Session: " + newSession;
+            localStorage.setItem('bis_term', newTerm);
+            localStorage.setItem('bis_session', newSession);
+        }
+
+        function refreshStats() {
+            const localUsers = JSON.parse(localStorage.getItem('bis_users')) || [];
+            const students = localUsers.filter(u => u.role === 'student').length;
+            const teachers = localUsers.filter(u => u.role === 'teacher').length;
+            const admins = localUsers.filter(u => u.role === 'principal' || u.role === 'admin').length;
+            
+            document.getElementById('studentCount').innerText = students;
+            document.getElementById('teacherCount').innerText = teachers;
+            document.getElementById('adminCount').innerText = admins;
+        }
+
+        window.onload = function() {
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            if (user) {
+                document.getElementById('welcomeName').innerText = "Welcome " + user.fullName;
+                document.getElementById('sideMenuName').innerText = user.fullName;
+                document.getElementById('editPropName').value = user.fullName;
+            }
+
+            const savedTerm = localStorage.getItem('bis_term');
+            const savedSession = localStorage.getItem('bis_session');
+            if (savedTerm) document.getElementById('displayTerm').innerText = savedTerm;
+            if (savedSession) document.getElementById('displaySession').innerText = "Current Session: " + savedSession;
+            refreshStats();
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

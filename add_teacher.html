@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Staff - BIS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --chocolate: #3E2723;
+            --cream: #FFF8E1;
+            --gold: #FFB300;
+            --white: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #fcfaf5; padding: 20px; padding-bottom: 50px; }
+
+        .header { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; color: var(--chocolate); }
+        .back-btn { font-size: 24px; color: var(--chocolate); text-decoration: none; }
+
+        .form-card {
+            background: var(--white); padding: 25px; border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); max-width: 650px; margin: auto;
+        }
+
+        .photo-section { display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; }
+        .photo-preview {
+            width: 110px; height: 110px; border-radius: 15px; background: #eee;
+            border: 2px dashed var(--chocolate); display: flex; align-items: center;
+            justify-content: center; overflow: hidden; margin-bottom: 10px;
+        }
+        .photo-preview img { width: 100%; height: 100%; object-fit: cover; }
+        .upload-label { font-size: 12px; color: var(--chocolate); cursor: pointer; text-decoration: underline; font-weight: 600; }
+
+        .section-title { 
+            font-size: 13px; color: var(--gold); text-transform: uppercase; 
+            letter-spacing: 1px; margin: 25px 0 10px 0; border-bottom: 1px solid #eee; padding-bottom: 5px;
+        }
+
+        .input-group { margin-bottom: 15px; position: relative; }
+        .input-group label { display: block; margin-bottom: 5px; font-weight: 600; color: var(--chocolate); font-size: 13px; }
+        
+        input, select, textarea {
+            width: 100%; padding: 12px; border: 1.5px solid #d7ccc8;
+            border-radius: 10px; font-size: 15px; outline: none; background: #fff;
+        }
+
+        .row { display: flex; gap: 10px; }
+        .row .input-group { flex: 1; }
+
+        .subject-container {
+            border: 1.5px solid #d7ccc8; border-radius: 10px; padding: 10px;
+            max-height: 200px; overflow-y: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+        }
+        .sub-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--chocolate); }
+        .sub-item input { width: auto; }
+
+        .toggle-pass { position: absolute; right: 15px; top: 38px; color: #888; cursor: pointer; z-index: 10; }
+
+        .submit-btn {
+            width: 100%; padding: 15px; background: var(--chocolate);
+            color: white; border: none; border-radius: 10px;
+            font-size: 16px; font-weight: bold; margin-top: 25px; cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <a href="principal_dash.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+        <h2>Staff Recruitment</h2>
+    </div>
+
+    <div class="form-card">
+        <form id="addStaffForm">
+            <div class="photo-section">
+                <div class="photo-preview" id="imageDisplay">
+                    <i class="fas fa-user-tie" style="font-size: 40px; color: #ccc;"></i>
+                </div>
+                <label for="staffPhoto" class="upload-label">Upload Staff Portrait</label>
+                <input type="file" id="staffPhoto" accept="image/*" style="display: none;" onchange="previewImage(this)">
+            </div>
+
+            <p class="section-title">Account Security</p>
+            <div class="row">
+                <div class="input-group">
+                    <label>Staff ID (Auto)</label>
+                    <input type="text" id="staffID" readonly>
+                </div>
+                <div class="input-group">
+                    <label>Login Password</label>
+                    <input type="password" id="staffPassword" placeholder="Required" required>
+                    <i class="fas fa-eye toggle-pass" onclick="togglePassword()"></i>
+                </div>
+            </div>
+
+            <p class="section-title">Employment Details</p>
+            <div class="row">
+                <div class="input-group">
+                    <label>Job Designation</label>
+                    <select id="staffRoleSelect" required onchange="toggleSubjectArea()">
+                        <option value="Teacher">Subject Teacher</option>
+                        <option value="Form Teacher">Form Teacher</option>
+                        <option value="Admin">Administrator</option>
+                        <option value="Bursar">Bursar/Accountant</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Monthly Salary (₦)</label>
+                    <input type="number" id="staffSalary" placeholder="75000" required>
+                </div>
+            </div>
+
+            <p class="section-title">Personal Information</p>
+            <div class="input-group">
+                <label>Full Name</label>
+                <input type="text" id="staffName" placeholder="Title Surname Firstname" required>
+            </div>
+
+            <div class="row">
+                <div class="input-group">
+                    <label>Gender</label>
+                    <select id="staffGender" required>
+                        <option value="">Select</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Phone Number</label>
+                    <input type="tel" id="staffPhone" placeholder="080..." required>
+                </div>
+            </div>
+
+            <div id="subjectSection">
+                <p class="section-title">Assign Subjects (For Results)</p>
+                <div class="subject-container" id="subjectGrid"></div>
+            </div>
+
+            <button type="submit" class="submit-btn">Complete Staff Registration</button>
+        </form>
+    </div>
+
+    <script>
+        let base64Image = "";
+        
+        const allSubjects = [
+            "Mathematics", "English Studies", "Basic Science", "Basic Technology", 
+            "Social Studies", "Civic Education", "Business Studies", "Agricultural Science", 
+            "Home Economics", "Cultural & Creative Arts", "Physical & Health Education", 
+            "CRS/IRS", "Computer Science", "Hausa", "Biology", "Economics", "Physics", 
+            "Chemistry", "Further Mathematics", "Geography", "Technical Drawing", 
+            "Literature in English", "Government", "Financial Accounting", "Commerce", "Marketing"
+        ].sort();
+
+        window.onload = function() {
+            // 1. Generate ID based on current bis_users list
+            const users = JSON.parse(localStorage.getItem('bis_users')) || [];
+            let maxNum = 0;
+            users.forEach(u => {
+                if (u.username && u.username.includes('BIS/STF/')) {
+                    const parts = u.username.split('/');
+                    const num = parseInt(parts[parts.length - 1]);
+                    if (!isNaN(num) && num > maxNum) maxNum = num;
+                }
+            });
+            document.getElementById('staffID').value = "BIS/STF/" + String(maxNum + 1).padStart(3, '0');
+
+            // 2. Load Subject Checkboxes
+            const grid = document.getElementById('subjectGrid');
+            grid.innerHTML = allSubjects.map(sub => `
+                <div class="sub-item">
+                    <input type="checkbox" name="teacherSubs" value="${sub}">
+                    <span>${sub}</span>
+                </div>
+            `).join('');
+        };
+
+        function toggleSubjectArea() {
+            const role = document.getElementById('staffRoleSelect').value;
+            const subSec = document.getElementById('subjectSection');
+            subSec.style.display = (role === 'Admin' || role === 'Bursar') ? 'none' : 'block';
+        }
+
+        function togglePassword() {
+            const passInput = document.getElementById('staffPassword');
+            const icon = document.querySelector('.toggle-pass');
+            if (passInput.type === "password") {
+                passInput.type = "text";
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                passInput.type = "password";
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('imageDisplay').innerHTML = `<img src="${e.target.result}">`;
+                    base64Image = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        document.getElementById('addStaffForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const roleSelect = document.getElementById('staffRoleSelect').value;
+            const systemRole = (roleSelect === 'Admin' || roleSelect === 'Bursar') ? 'admin' : 'teacher';
+
+            // IMPORTANT: Collect subjects correctly
+            const selectedSubs = [];
+            const checkboxes = document.querySelectorAll('input[name="teacherSubs"]:checked');
+            checkboxes.forEach(cb => selectedSubs.push(cb.value));
+
+            const newStaff = {
+                fullName: document.getElementById('staffName').value.trim(),
+                username: document.getElementById('staffID').value,
+                password: document.getElementById('staffPassword').value,
+                role: systemRole, 
+                designation: roleSelect,
+                salary: document.getElementById('staffSalary').value,
+                gender: document.getElementById('staffGender').value,
+                // Ensure an empty array is saved if no subjects are picked
+                subjects: (systemRole === 'teacher') ? selectedSubs : [], 
+                phone: document.getElementById('staffPhone').value,
+                photo: base64Image || ""
+            };
+
+            let users = JSON.parse(localStorage.getItem('bis_users')) || [];
+            users.push(newStaff);
+            
+            // Save back to local storage
+            localStorage.setItem('bis_users', JSON.stringify(users));
+
+            alert("Staff Registered Successfully!\nID: " + newStaff.username);
+            window.location.href = 'principal_dash.html';
+        });
+    </script>
+</body>
+</html>

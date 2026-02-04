@@ -1,0 +1,318 @@
+<!DOCTYPE html><html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>School Timetable - BIS</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+    :root {
+        --chocolate: #3E2723;
+        --gold: #FFB300;
+        --cream: #FFF8E1;
+        --border: #444;
+    }* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Arial', sans-serif; }
+body { background-color: #fcfaf5; }
+
+.header {
+    background: var(--chocolate); padding: 15px; color: white;
+    display: flex; align-items: center; gap: 15px;
+}
+.back-btn { color: white; text-decoration: none; }
+
+.controls { padding: 15px; display: flex; gap: 10px; background: white; border-bottom: 1px solid #ddd; }
+select { flex: 1; padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-weight: bold; color: var(--chocolate); }
+
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto; 
+    padding: 10px;
+    background: white;
+}
+
+table {
+    width: 100%;
+    min-width: 950px; 
+    border-collapse: collapse;
+    text-align: center;
+}
+
+th, td {
+    border: 1px solid var(--border);
+    padding: 8px 4px;
+    font-size: 12px;
+    height: 65px;
+}
+
+th { background: #f2f2f2; font-weight: bold; color: #333; height: 40px; }
+.day-column { background: #f2f2f2; font-weight: bold; width: 90px; color: var(--chocolate); }
+
+.break-cell {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    transform: rotate(180deg);
+    background: #eee;
+    font-weight: bold;
+    letter-spacing: 5px;
+    width: 40px !important;
+    color: #333;
+    font-size: 16px;
+    text-align: center;
+}
+
+.subject-slot { background: #fff; }
+.is-principal .subject-slot { cursor: pointer; transition: 0.2s; }
+.is-principal .subject-slot:hover { background: var(--cream); }
+
+.subject-name { display: block; font-weight: bold; color: var(--chocolate); font-size: 11px; text-transform: uppercase; }
+
+.fab {
+    position: fixed; bottom: 25px; right: 25px;
+    background: var(--gold); width: 55px; height: 55px;
+    border-radius: 50%; display: none; align-items: center;
+    justify-content: center; color: var(--chocolate);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3); cursor: pointer; z-index: 999;
+}
+
+.time-fab{
+    position: fixed;
+    bottom: 95px;
+    right: 25px;
+    background: var(--chocolate);
+    color:white;
+    width:55px;
+    height:55px;
+    border-radius:50%;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    box-shadow:0 4px 12px rgba(0,0,0,.3);
+}
+
+.modal {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center;
+    z-index: 1000;
+}
+.modal-content { background: white; padding: 25px; border-radius: 15px; width: 90%; max-width: 420px; max-height:90vh; overflow:auto; }
+.save-btn { width: 100%; padding: 14px; background: var(--chocolate); color: white; border: none; border-radius: 8px; font-weight: bold; margin-top: 20px; }
+
+.time-input{
+    width:100%;
+    padding:10px;
+    margin-top:8px;
+    border-radius:8px;
+    border:1px solid #ddd;
+}
+
+</style>
+</head>
+<body id="mainBody"><div class="header">
+    <a href="javascript:history.back()" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+    <h3>BIS Master Timetable</h3>
+</div>
+
+<div class="controls">
+    <select id="classSelect" onchange="renderGrid()">
+        <optgroup label="Junior Secondary">
+            <option value="JSS1">JSS 1</option>
+            <option value="JSS2">JSS 2</option>
+            <option value="JSS3">JSS 3</option>
+        </optgroup>
+        <optgroup label="Senior Secondary">
+            <option value="SS1">SS 1</option>
+            <option value="SS2">SS 2</option>
+            <option value="SS3">SS 3</option>
+        </optgroup>
+    </select>
+    <button onclick="renderGrid()" style="padding: 0 15px; background: var(--gold); border: none; border-radius: 5px;">
+        <i class="fas fa-sync-alt"></i>
+    </button>
+</div>
+
+<div class="table-wrapper">
+    <table id="timetableGrid">
+        <thead>
+            <tr id="timeHeader">
+                <th>Day</th>
+            </tr>
+        </thead>
+        <tbody id="gridBody"></tbody>
+    </table>
+</div>
+
+<div class="fab" id="adminFab" onclick="openModal()">
+    <i class="fas fa-edit"></i>
+</div>
+
+<div class="time-fab" id="timeFab" onclick="openTimeModal()">
+    <i class="fas fa-clock"></i>
+</div>
+
+<!-- SUBJECT MODAL -->
+<div class="modal" id="editModal">
+    <div class="modal-content">
+        <h4>Update Schedule</h4>
+        <select id="editDay">
+            <option value="Monday">Monday</option><option value="Tuesday">Tuesday</option>
+            <option value="Wednesday">Wednesday</option><option value="Thursday">Thursday</option>
+            <option value="Friday">Friday</option>
+        </select>
+        <select id="editTime"></select>
+        <input type="text" id="editSubj" placeholder="Subject Name" class="time-input">
+        <button class="save-btn" onclick="saveData()">Update Grid</button>
+        <button onclick="closeModal()" style="width:100%; border:none; background:none; margin-top:15px; color:#888;">Close</button>
+    </div>
+</div>
+
+<!-- TIME MODAL -->
+<div class="modal" id="timeModal">
+    <div class="modal-content">
+        <h4>Edit Period Times</h4>
+        <div id="timeInputs"></div>
+        <button class="save-btn" onclick="saveTimes()">Save Times</button>
+        <button onclick="closeTimeModal()" style="width:100%; border:none; background:none; margin-top:15px; color:#888;">Close</button>
+    </div>
+</div>
+
+<script>
+
+const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+let isPrincipal = false;
+
+// DEFAULT TIMES
+const defaultTimes = [
+"08:00","08:40","09:20","LONG BREAK",
+"10:00","10:40","SHORT BREAK",
+"11:40","12:20","01:00"
+];
+
+function getTimes(){
+return JSON.parse(localStorage.getItem('bis_period_times')) || defaultTimes;
+}
+
+function checkPermissions() {
+    const user = JSON.parse(localStorage.getItem('currentUser'));
+    if (user && user.role.toLowerCase() === 'principal') {
+        isPrincipal = true;
+        document.getElementById('adminFab').style.display = 'flex';
+        document.getElementById('timeFab').style.display = 'flex';
+        document.getElementById('mainBody').classList.add('is-principal');
+    }
+}
+
+function renderHeader(){
+const times = getTimes();
+const header = document.getElementById('timeHeader');
+
+let html = `<th>Day</th>`;
+
+times.forEach(t=>{
+if(t.includes("BREAK")){
+html += `<th>${t}</th>`;
+}else{
+html += `<th>${t}</th>`;
+}
+});
+
+header.innerHTML = html;
+
+// populate period dropdown dynamically
+const edit = document.getElementById('editTime');
+edit.innerHTML = times
+.map((t,i)=> !t.includes("BREAK") ? `<option value="${i+1}">Period ${i+1} (${t})</option>` : "")
+.join('');
+}
+
+function renderGrid() {
+    const cls = document.getElementById('classSelect').value;
+    const body = document.getElementById('gridBody');
+    const data = JSON.parse(localStorage.getItem('bis_timetable_v2')) || {};
+    const times = getTimes();
+    
+    let html = "";
+    days.forEach(day => {
+        html += `<tr><td class="day-column">${day}</td>`;
+        
+        times.forEach((t,index)=>{
+            if(t.includes("BREAK")){
+                html += `<td class="break-cell">${t}</td>`;
+            }else{
+                const period = index+1;
+                const slot = (data[cls] && data[cls][day] && data[cls][day][period]) ? data[cls][day][period] : "";
+                const onclickAction = isPrincipal ? `onclick="openModal('${day}', ${period}, '${slot}')"` : "";
+
+                html += `<td class="subject-slot" ${onclickAction}>
+                            <span class="subject-name">${slot}</span>
+                         </td>`;
+            }
+        });
+
+        html += `</tr>`;
+    });
+    body.innerHTML = html;
+}
+
+function openModal(day = "Monday", period = 1, currentSubj = "") {
+    if (!isPrincipal) return;
+    document.getElementById('editDay').value = day;
+    document.getElementById('editTime').value = period;
+    document.getElementById('editSubj').value = currentSubj;
+    document.getElementById('editModal').style.display = 'flex';
+}
+
+function saveData() {
+    const cls = document.getElementById('classSelect').value;
+    const day = document.getElementById('editDay').value;
+    const period = document.getElementById('editTime').value;
+    const subj = document.getElementById('editSubj').value.toUpperCase();
+
+    let data = JSON.parse(localStorage.getItem('bis_timetable_v2')) || {};
+    if(!data[cls]) data[cls] = {};
+    if(!data[cls][day]) data[cls][day] = {};
+    data[cls][day][period] = subj;
+    
+    localStorage.setItem('bis_timetable_v2', JSON.stringify(data));
+    closeModal();
+    renderGrid();
+}
+
+function closeModal() { document.getElementById('editModal').style.display = 'none'; }
+
+// TIME CONTROL
+function openTimeModal(){
+const times = getTimes();
+const container = document.getElementById('timeInputs');
+
+container.innerHTML = times.map((t,i)=>`
+<label>Slot ${i+1}</label>
+<input class="time-input" value="${t}" data-index="${i}">
+`).join('');
+
+document.getElementById('timeModal').style.display='flex';
+}
+
+function saveTimes(){
+const inputs = document.querySelectorAll('#timeInputs input');
+let newTimes = [];
+
+inputs.forEach(inp=>{
+newTimes.push(inp.value.toUpperCase());
+});
+
+localStorage.setItem('bis_period_times', JSON.stringify(newTimes));
+closeTimeModal();
+renderHeader();
+renderGrid();
+}
+
+function closeTimeModal(){
+document.getElementById('timeModal').style.display='none';
+}
+
+window.onload = () => {
+    checkPermissions();
+    renderHeader();
+    renderGrid();
+};
+</script></body>
+</html>

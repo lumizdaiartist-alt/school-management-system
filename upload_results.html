@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Results - BIS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --chocolate: #3E2723;
+            --gold: #FFB300;
+            --cream: #FFF8E1;
+            --white: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #fcfaf5; padding-bottom: 80px; }
+
+        .header { background: var(--chocolate); padding: 20px; color: white; display: flex; align-items: center; gap: 15px; }
+        .back-btn { color: white; text-decoration: none; }
+
+        .setup-section { background: white; padding: 15px; border-bottom: 2px solid var(--gold); display: flex; flex-direction: column; gap: 10px; }
+        .row-inputs { display: flex; gap: 10px; margin-bottom: 5px; }
+        select { flex: 1; padding: 12px; border-radius: 8px; border: 1px solid #ddd; font-weight: bold; background: #fff; font-size: 13px; color: var(--chocolate); }
+
+        .table-container { width: 100%; overflow-x: auto; padding: 10px; }
+        table { width: 100%; min-width: 700px; border-collapse: collapse; background: white; border-radius: 10px; }
+        th { background: #f2f2f2; padding: 10px; font-size: 11px; text-transform: uppercase; border: 1px solid #ddd; }
+        td { padding: 8px; border: 1px solid #ddd; text-align: center; }
+
+        .stu-name-cell { text-align: left; font-weight: bold; font-size: 13px; color: var(--chocolate); min-width: 160px; }
+        
+        input[type="number"] {
+            width: 55px; padding: 8px; border: 1px solid #ccc; border-radius: 5px; text-align: center; font-weight: bold;
+        }
+
+        .total-cell { font-weight: 800; color: #2e7d32; font-size: 15px; }
+        .grade-cell { font-weight: bold; font-size: 14px; }
+
+        .footer-actions {
+            position: fixed; bottom: 0; width: 100%; background: white; 
+            padding: 15px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .save-btn {
+            background: var(--chocolate); color: white; border: none; 
+            padding: 15px 40px; border-radius: 10px; font-weight: bold; cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <a href="teacher_dash.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+        <h2 id="pageTitle">Result Management</h2>
+    </div>
+
+    <div class="setup-section">
+        <div class="row-inputs">
+            <select id="termSelect">
+                <option value="FIRST TERM">First Term</option>
+                <option value="SECOND TERM">Second Term</option>
+                <option value="THIRD TERM">Third Term</option>
+            </select>
+            <select id="yearSelect">
+                <option value="2024/2025">2024/2025</option>
+                <option value="2025/2026" selected>2025/2026</option>
+                <option value="2026/2027">2026/2027</option>
+            </select>
+        </div>
+
+        <div class="row-inputs">
+            <select id="classSelect" onchange="handleClassChange()">
+                <option value="">-- Select Class --</option>
+                <option value="JSS1">JSS 1</option><option value="JSS2">JSS 2</option><option value="JSS3">JSS 3</option>
+                <option value="SS1">SS 1</option><option value="SS2">SS 2</option><option value="SS3">SS 3</option>
+            </select>
+            <select id="subjectSelect" onchange="loadStudents()">
+                <option value="">-- Select Subject --</option>
+            </select>
+        </div>
+        <p style="font-size: 11px; color: #888;" id="assignmentNotice"><i class="fas fa-info-circle"></i> Loading your assigned subjects...</p>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Student Name</th>
+                    <th>CA 1 (10)</th>
+                    <th>CA 2 (10)</th>
+                    <th>CA 3 (20)</th>
+                    <th>Exam (60)</th>
+                    <th>Total</th>
+                    <th>Grade</th>
+                </tr>
+            </thead>
+            <tbody id="studentRows">
+                <tr><td colspan="7" style="padding:40px; color:#999; text-align:center;">Choose class and subject to begin</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="footer-actions">
+        <div id="statusMsg" style="font-size: 12px; font-weight: bold; color: var(--chocolate);">Waiting...</div>
+        <button class="save-btn" onclick="saveAllResults()">Upload Scores</button>
+    </div>
+
+    <script>
+        // Get the logged-in teacher from session
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+
+        // Subject lists for separation
+        const jssCurriculum = ["Mathematics", "English Studies", "Basic Science", "Basic Technology", "Social Studies", "Civic Education", "Business Studies", "Agricultural Science", "Home Economics", "Cultural & Creative Arts", "Physical & Health Education", "CRS/IRS", "Computer Science", "Hausa"];
+        const ssCurriculum = ["Mathematics", "English Language", "Civic Education", "Biology", "Economics", "Physics", "Chemistry", "Further Mathematics", "Geography", "Technical Drawing", "Literature in English", "Government", "CRS/IRS", "Financial Accounting", "Commerce", "Marketing", "Computer Science"];
+
+        window.onload = () => {
+            if (!currentUser || currentUser.role !== 'teacher') {
+                alert("Access Denied. Teacher login required.");
+                window.location.href = 'index.html';
+                return;
+            }
+
+            document.getElementById('pageTitle').innerText = "Upload: " + (currentUser.fullName || "Teacher");
+            
+            const settings = JSON.parse(localStorage.getItem('bis_settings')) || {};
+            if(settings.term) document.getElementById('termSelect').value = settings.term;
+            if(settings.year) document.getElementById('yearSelect').value = settings.year;
+        };
+
+        function handleClassChange() {
+            const cls = document.getElementById('classSelect').value;
+            const subDropdown = document.getElementById('subjectSelect');
+            const tbody = document.getElementById('studentRows');
+            subDropdown.innerHTML = '<option value="">-- Select Subject --</option>';
+            tbody.innerHTML = '<tr><td colspan="7" style="padding:40px; color:#999; text-align:center;">Select a subject to load students</td></tr>';
+            
+            if(!cls) return;
+
+            // 1. Get the subjects actually registered to this teacher
+            const myRegisteredSubjects = currentUser.subjects || [];
+
+            if(myRegisteredSubjects.length === 0) {
+                document.getElementById('assignmentNotice').innerHTML = "<span style='color:red'>No subjects assigned to your profile!</span>";
+                return;
+            }
+
+            // 2. Separate based on class level
+            let filteredList = [];
+            if (cls.startsWith('JSS')) {
+                filteredList = myRegisteredSubjects.filter(sub => jssCurriculum.includes(sub));
+            } else {
+                filteredList = myRegisteredSubjects.filter(sub => ssCurriculum.includes(sub));
+            }
+
+            // 3. Populate
+            if(filteredList.length === 0) {
+                document.getElementById('assignmentNotice').innerText = `No ${cls} subjects in your profile.`;
+            } else {
+                document.getElementById('assignmentNotice').innerText = `Showing your ${cls} subjects.`;
+                filteredList.sort().forEach(sub => {
+                    const opt = document.createElement('option');
+                    opt.value = sub;
+                    opt.innerText = sub;
+                    subDropdown.appendChild(opt);
+                });
+            }
+        }
+
+        function loadStudents() {
+            const cls = document.getElementById('classSelect').value;
+            const subj = document.getElementById('subjectSelect').value;
+            const tbody = document.getElementById('studentRows');
+            
+            if (!cls || !subj) return;
+
+            const allUsers = JSON.parse(localStorage.getItem('bis_users')) || [];
+            const students = allUsers.filter(u => u.role === 'student' && u.studentClass === cls);
+            
+            const allResults = JSON.parse(localStorage.getItem('bis_results')) || {};
+            const savedScores = (allResults[cls] && allResults[cls][subj]) ? allResults[cls][subj] : null;
+
+            if (students.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="padding:40px; text-align:center;">No students registered for ${cls}</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = students.map(s => {
+                const record = savedScores ? savedScores[s.username] : null;
+                return `
+                <tr data-id="${s.username}">
+                    <td class="stu-name-cell">${s.fullName}</td>
+                    <td><input type="number" class="ca1" value="${record ? record.ca1 : 0}" oninput="limit(this, 10); calc(this)"></td>
+                    <td><input type="number" class="ca2" value="${record ? record.ca2 : 0}" oninput="limit(this, 10); calc(this)"></td>
+                    <td><input type="number" class="ca3" value="${record ? record.ca3 : 0}" oninput="limit(this, 20); calc(this)"></td>
+                    <td><input type="number" class="exam" value="${record ? record.exam : 0}" oninput="limit(this, 60); calc(this)"></td>
+                    <td class="total-cell">${record ? record.total : 0}</td>
+                    <td class="grade-cell">${record ? record.grade : '-'}</td>
+                </tr>
+            `;}).join('');
+
+            // Run calc for existing records
+            document.querySelectorAll('#studentRows tr').forEach(row => calc(row.querySelector('.ca1')));
+
+            document.getElementById('statusMsg').innerText = savedScores ? "Editing Saved Scores" : "Ready for New Entry";
+        }
+
+        function limit(input, max) {
+            if (parseFloat(input.value) > max) input.value = max;
+            if (parseFloat(input.value) < 0) input.value = 0;
+        }
+
+        function calc(input) {
+            const row = input.closest('tr');
+            if(!row) return;
+            const ca1 = parseFloat(row.querySelector('.ca1').value) || 0;
+            const ca2 = parseFloat(row.querySelector('.ca2').value) || 0;
+            const ca3 = parseFloat(row.querySelector('.ca3').value) || 0;
+            const exam = parseFloat(row.querySelector('.exam').value) || 0;
+
+            const total = ca1 + ca2 + ca3 + exam;
+            row.querySelector('.total-cell').innerText = total;
+
+            let grade = "F9"; let color = "#d32f2f";
+            if (total >= 75) { grade = "A1"; color = "#2e7d32"; }
+            else if (total >= 70) { grade = "B2"; color = "#388e3c"; }
+            else if (total >= 65) { grade = "B3"; color = "#4caf50"; }
+            else if (total >= 60) { grade = "C4"; color = "#8bc34a"; }
+            else if (total >= 55) { grade = "C5"; color = "#9e9d24"; }
+            else if (total >= 50) { grade = "C6"; color = "#f9a825"; }
+            else if (total >= 45) { grade = "D7"; color = "#ef6c00"; }
+            else if (total >= 40) { grade = "E8"; color = "#e65100"; }
+
+            const gradeCell = row.querySelector('.grade-cell');
+            gradeCell.innerText = grade;
+            gradeCell.style.color = color;
+        }
+
+        function saveAllResults() {
+            const cls = document.getElementById('classSelect').value;
+            const subj = document.getElementById('subjectSelect').value;
+            const term = document.getElementById('termSelect').value;
+            const year = document.getElementById('yearSelect').value;
+
+            if(!cls || !subj) return alert("Please select Class and Subject!");
+
+            localStorage.setItem('bis_settings', JSON.stringify({ term, year }));
+
+            const rows = document.querySelectorAll('#studentRows tr');
+            let resultsData = JSON.parse(localStorage.getItem('bis_results')) || {};
+
+            if(!resultsData[cls]) resultsData[cls] = {};
+            resultsData[cls][subj] = {}; 
+
+            rows.forEach(row => {
+                const stuId = row.getAttribute('data-id');
+                if(stuId) {
+                    resultsData[cls][subj][stuId] = {
+                        ca1: row.querySelector('.ca1').value,
+                        ca2: row.querySelector('.ca2').value,
+                        ca3: row.querySelector('.ca3').value,
+                        exam: row.querySelector('.exam').value,
+                        total: row.querySelector('.total-cell').innerText,
+                        grade: row.querySelector('.grade-cell').innerText
+                    };
+                }
+            });
+
+            localStorage.setItem('bis_results', JSON.stringify(resultsData));
+            alert("Results Uploaded Successfully!");
+            document.getElementById('statusMsg').innerText = "Saved: " + new Date().toLocaleTimeString();
+        }
+    </script>
+</body>
+</html>

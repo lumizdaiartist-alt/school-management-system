@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Dashboard - BIS</title>
+
+<script>
+(function() {
+    const user = JSON.parse(localStorage.getItem('currentUser'));
+    if (!user || user.role !== 'student') {
+        window.location.replace('index.html');
+    }
+})();
+</script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+:root {
+--chocolate:#3E2723;
+--cream:#FFF8E1;
+--gold:#FFB300;
+--white:#ffffff;
+--bg:#fcfaf5;
+--text:#3E2723;
+}
+
+html{display:none;}
+
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif;}
+body{background-color:var(--bg);color:var(--text);}
+
+.header{
+background:var(--chocolate);
+padding:40px 20px;
+color:var(--cream);
+border-bottom-left-radius:30px;
+border-bottom-right-radius:30px;
+text-align:center;
+}
+
+.header h1{font-size:26px;}
+.header p{
+opacity:0.8;
+font-size:14px;
+margin-top:5px;
+color:var(--gold);
+font-weight:bold;
+}
+
+.announcement-card{
+background:var(--cream);
+padding:15px;
+border-radius:12px;
+margin:20px;
+border-left:5px solid var(--gold);
+box-shadow:0 2px 8px rgba(0,0,0,0.05);
+cursor:pointer;
+text-decoration:none;
+display:block;
+}
+
+.nav-grid{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:12px;
+padding:10px 20px;
+}
+
+.nav-item{
+background:var(--white);
+padding:25px 10px;
+border-radius:15px;
+text-align:center;
+text-decoration:none;
+color:var(--chocolate);
+font-size:12px;
+font-weight:600;
+box-shadow:0 2px 5px rgba(0,0,0,0.05);
+border:1px solid #efebe9;
+position:relative;
+}
+
+.nav-item i{
+display:block;
+font-size:26px;
+color:var(--gold);
+margin-bottom:10px;
+}
+
+.badge{
+position:absolute;
+top:8px;
+right:10px;
+background:#d32f2f;
+color:white;
+font-size:10px;
+padding:3px 7px;
+border-radius:50px;
+font-weight:bold;
+}
+
+.logout-btn{
+margin:30px 20px;
+padding:15px;
+width:calc(100% - 40px);
+border:1px solid #d32f2f;
+border-radius:12px;
+background:transparent;
+color:#d32f2f;
+font-weight:bold;
+cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+<h1 id="stdName">Hi, Student</h1>
+<p id="stdClass">Class: Loading...</p>
+</div>
+
+<div id="announcementBox"></div>
+
+<div class="nav-grid">
+
+<a href="assignments.html" class="nav-item">
+<i class="fas fa-book-open"></i>
+Assignments
+<span id="assignmentBadge"></span>
+</a>
+
+<a href="scores.html" class="nav-item">
+<i class="fas fa-star"></i>
+My Scores
+</a>
+
+<a href="timetable.html" class="nav-item">
+<i class="fas fa-calendar-alt"></i>
+Schedule
+</a>
+
+<a href="locker.html" class="nav-item">
+<i class="fas fa-box-open"></i>
+My Locker
+</a>
+
+<a href="news.html" class="nav-item">
+<i class="fas fa-bullhorn"></i>
+News
+</a>
+
+<a href="profile.html" class="nav-item">
+<i class="fas fa-user-circle"></i>
+Profile
+</a>
+
+</div>
+
+<button class="logout-btn" onclick="logout()">
+<i class="fas fa-sign-out-alt"></i> Logout Student Account
+</button>
+
+<script>
+
+document.documentElement.style.display="block";
+
+window.onload=function(){
+
+const user=JSON.parse(localStorage.getItem('currentUser'));
+if(!user) return;
+
+document.getElementById('stdName').innerText=
+"Hi, "+user.fullName.split(' ')[0];
+
+document.getElementById('stdClass').innerText=
+"Class: "+(user.class||user.grade||"Not Assigned");
+
+cleanOldAnnouncements(); // ⭐ NEW ENGINE
+loadLatestNews();
+loadAssignmentBadge();
+};
+
+
+/* =============================
+   DELETE ANNOUNCEMENTS >24hrs
+============================= */
+
+function cleanOldAnnouncements(){
+
+const DAY = 86400000; // 24hrs in ms
+
+let news =
+JSON.parse(localStorage.getItem('bis_announcements')) || [];
+
+const now = Date.now();
+
+news = news.filter(a => {
+
+if(!a.createdAt) return true; // supports old announcements
+
+return (now - a.createdAt) < DAY;
+});
+
+localStorage.setItem('bis_announcements', JSON.stringify(news));
+}
+
+
+
+/* =============================
+   ASSIGNMENT BADGE
+============================= */
+
+function loadAssignmentBadge(){
+
+const user = JSON.parse(localStorage.getItem('currentUser'));
+if(!user) return;
+
+const studentClass=(user.class||user.grade||"")
+.replace(/\s/g,'')
+.toUpperCase();
+
+const allAssignments=
+JSON.parse(localStorage.getItem('bis_assignments'))||[];
+
+const done=
+JSON.parse(localStorage.getItem('bis_done_assignments_'+user.username))||[];
+
+const pending=allAssignments.filter(a=>{
+
+if(!a.grade) return false;
+
+const g=a.grade.replace(/\s/g,'').toUpperCase();
+
+return g===studentClass && !done.includes(a.id);
+});
+
+if(pending.length>0){
+
+document.getElementById('assignmentBadge').innerHTML=
+`<span class="badge">${pending.length}</span>`;
+}
+}
+
+
+
+/* =============================
+   NEWS
+============================= */
+
+function loadLatestNews(){
+
+const box=document.getElementById('announcementBox');
+
+const news=
+JSON.parse(localStorage.getItem('bis_announcements'))||[];
+
+if(news.length>0){
+
+const latest=news[news.length-1];
+
+box.innerHTML=`
+<a href="news.html" class="announcement-card">
+<small style="color:var(--chocolate);font-weight:bold;letter-spacing:1px;">
+LATEST UPDATE
+</small>
+
+<p style="font-size:13px;margin-top:5px;color:#5D4037;">
+${latest.message}
+</p>
+</a>`;
+}
+}
+
+
+
+/* =============================
+   LOGOUT
+============================= */
+
+function logout(){
+localStorage.removeItem('currentUser');
+window.location.replace('index.html');
+}
+
+</script>
+</body>
+</html>

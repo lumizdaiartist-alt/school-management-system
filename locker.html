@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Locker - BIS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1A237E;
+            --accent: #FFD600;
+            --bg: #f4f7f6;
+            --white: #ffffff;
+            --text: #333;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg); color: var(--text); padding-bottom: 30px; }
+
+        .header {
+            background: var(--primary);
+            padding: 20px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .back-btn { color: white; text-decoration: none; font-size: 18px; }
+
+        .locker-container { padding: 20px; }
+
+        /* Note Input Area */
+        .note-input-card {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+        }
+        textarea {
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 12px;
+            resize: none;
+            height: 80px;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .save-note-btn {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* Saved Notes List */
+        .notes-grid { display: grid; gap: 15px; }
+        .note-item {
+            background: #fff9c4; /* Sticky note yellow */
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+            position: relative;
+            border-left: 5px solid var(--accent);
+        }
+        .note-text { font-size: 14px; margin-bottom: 15px; line-height: 1.5; color: #444; }
+        .note-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: #888;
+        }
+        .delete-note { color: #d32f2f; cursor: pointer; font-size: 16px; }
+
+        .empty-locker {
+            text-align: center;
+            padding: 50px 20px;
+            color: #aaa;
+        }
+        .empty-locker i { font-size: 40px; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <a href="student_dash.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+        <h2>My Locker</h2>
+    </div>
+
+    <div class="locker-container">
+        <div class="note-input-card">
+            <h4 style="margin-bottom:10px; color: var(--primary);">Quick Note</h4>
+            <textarea id="noteInput" placeholder="Save a homework reminder, a link, or a thought..."></textarea>
+            <button class="save-note-btn" onclick="saveNote()">
+                <i class="fas fa-thumbtack"></i> Pin to Locker
+            </button>
+        </div>
+
+        <h3 style="margin-bottom: 15px; color: var(--primary); font-size: 16px;">Saved Items</h3>
+        
+        <div id="notesGrid" class="notes-grid">
+            </div>
+    </div>
+
+    <script>
+        // Security Check
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        if (!currentUser) {
+            window.location.href = 'index.html';
+        }
+
+        // Unique key for this specific student's locker
+        const lockerKey = `bis_locker_${currentUser.username}`;
+
+        window.onload = loadNotes;
+
+        function saveNote() {
+            const input = document.getElementById('noteInput');
+            const text = input.value.trim();
+
+            if (!text) return;
+
+            const notes = JSON.parse(localStorage.getItem(lockerKey)) || [];
+            const newNote = {
+                id: Date.now(),
+                content: text,
+                date: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+            };
+
+            notes.unshift(newNote); // Add to top
+            localStorage.setItem(lockerKey, JSON.stringify(notes));
+            
+            input.value = '';
+            loadNotes();
+        }
+
+        function loadNotes() {
+            const grid = document.getElementById('notesGrid');
+            const notes = JSON.parse(localStorage.getItem(lockerKey)) || [];
+
+            if (notes.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-locker">
+                        <i class="fas fa-lock-open"></i>
+                        <p>Your locker is empty.<br>Start pinning your notes!</p>
+                    </div>`;
+                return;
+            }
+
+            grid.innerHTML = notes.map(note => `
+                <div class="note-item">
+                    <p class="note-text">${note.content}</p>
+                    <div class="note-footer">
+                        <span><i class="far fa-clock"></i> ${note.date}</span>
+                        <i class="fas fa-trash-alt delete-note" onclick="deleteNote(${note.id})"></i>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function deleteNote(id) {
+            if(confirm("Remove this item from your locker?")) {
+                let notes = JSON.parse(localStorage.getItem(lockerKey)) || [];
+                notes = notes.filter(n => n.id !== id);
+                localStorage.setItem(lockerKey, JSON.stringify(notes));
+                loadNotes();
+            }
+        }
+    </script>
+</body>
+</html>

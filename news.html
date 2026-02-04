@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Academy News - BIS</title>
+
+<script>
+(function() {
+    const user = JSON.parse(localStorage.getItem('currentUser'));
+    if (!user || user.role !== 'student') {
+        window.location.replace('index.html');
+    }
+})();
+</script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+:root{
+--chocolate:#3E2723;
+--cream:#FFF8E1;
+--gold:#FFB300;
+--white:#ffffff;
+--bg:#fcfaf5;
+--text:#3E2723;
+}
+
+html{display:none;}
+
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif;}
+body{background-color:var(--bg);color:var(--text);}
+
+.header{
+background:var(--chocolate);
+padding:20px;
+color:var(--cream);
+display:flex;
+align-items:center;
+gap:15px;
+box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}
+
+.header h2{font-size:18px;}
+
+.back-btn{
+color:var(--gold);
+text-decoration:none;
+font-size:20px;
+}
+
+.news-container{padding:20px;}
+
+.news-item{
+background:var(--white);
+border-radius:15px;
+padding:20px;
+margin-bottom:20px;
+box-shadow:0 4px 12px rgba(62,39,35,0.05);
+border-left:5px solid var(--gold);
+position:relative;
+}
+
+.news-item h4{
+color:var(--chocolate);
+font-size:14px;
+margin-bottom:8px;
+text-transform:uppercase;
+display:flex;
+align-items:center;
+gap:8px;
+}
+
+.news-item p{
+font-size:14px;
+color:#5D4037;
+line-height:1.6;
+}
+
+.news-date{
+display:block;
+margin-top:15px;
+font-size:11px;
+color:#8D6E63;
+font-weight:bold;
+font-style:italic;
+}
+
+.empty-state{
+text-align:center;
+padding:100px 20px;
+color:#aaa;
+}
+
+.empty-state i{
+font-size:50px;
+color:var(--cream);
+margin-bottom:15px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+<a href="student_dash.html" class="back-btn">
+<i class="fas fa-arrow-left"></i>
+</a>
+<h2>Academy Bulletin</h2>
+</div>
+
+<div class="news-container" id="fullNewsList"></div>
+
+<script>
+
+document.documentElement.style.display="block";
+
+window.onload=function(){
+cleanOldNews(); // ⭐ NEW ENGINE
+loadAllNews();
+};
+
+
+/* ===============================
+   DELETE NEWS OLDER THAN 3 DAYS
+================================ */
+
+function cleanOldNews(){
+
+const THREE_DAYS = 259200000; // 72hrs
+
+let news =
+JSON.parse(localStorage.getItem('bis_announcements')) || [];
+
+const now = Date.now();
+
+news = news.filter(item => {
+
+if(!item.createdAt) return true; // keeps legacy posts
+
+return (now - item.createdAt) < THREE_DAYS;
+});
+
+localStorage.setItem('bis_announcements', JSON.stringify(news));
+}
+
+
+
+/* ===============================
+   LOAD NEWS
+================================ */
+
+function loadAllNews(){
+
+const container=document.getElementById('fullNewsList');
+
+let news=
+JSON.parse(localStorage.getItem('bis_announcements')) || [];
+
+if(news.length===0){
+
+container.innerHTML=`
+<div class="empty-state">
+<i class="fas fa-bullhorn"></i>
+<p>No announcements have been posted yet.</p>
+</div>`;
+return;
+}
+
+/* show latest first WITHOUT damaging storage */
+news = [...news].reverse();
+
+container.innerHTML=news.map(item=>`
+
+<div class="news-item">
+
+<h4>
+<i class="fas fa-scroll"></i>
+Principal's Office
+</h4>
+
+<p>${item.message}</p>
+
+<span class="news-date">
+Posted on: ${item.date || 'Recently'}
+</span>
+
+</div>
+
+`).join('');
+}
+
+</script>
+</body>
+</html>
