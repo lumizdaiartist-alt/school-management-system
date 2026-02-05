@@ -5,109 +5,255 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Benaiah Secondary Portal</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
     <style>
         :root { --chocolate: #3E2723; --gold: #FFB300; }
-        body { background: #fcfaf5; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .login-container { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 350px; text-align: center; }
-        .logo-placeholder { background: var(--chocolate); color: var(--gold); width: 60px; height: 60px; line-height: 60px; border-radius: 50%; margin: 0 auto 15px; font-weight: bold; font-size: 20px; }
+
+        body {
+            background: #fcfaf5;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 350px;
+            text-align: center;
+        }
+
+        .logo-placeholder {
+            background: var(--chocolate);
+            color: var(--gold);
+            width: 60px;
+            height: 60px;
+            line-height: 60px;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
         h2 { color: var(--chocolate); font-size: 18px; margin-bottom: 5px; }
-        .motto { font-style: italic; font-size: 11px; color: #777; margin-bottom: 25px; }
-        .input-group { text-align: left; margin-bottom: 15px; }
-        label { display: block; font-size: 12px; color: #555; margin-bottom: 5px; font-weight: 600; }
-        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; outline: none; transition: 0.3s; }
-        input:focus { border-color: var(--chocolate); }
-        .login-btn { width: 100%; padding: 12px; background: var(--chocolate); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .footer-links { margin-top: 20px; font-size: 12px; color: #888; }
-        .footer-links a { color: var(--chocolate); text-decoration: none; }
+
+        .motto {
+            font-style: italic;
+            font-size: 11px;
+            color: #777;
+            margin-bottom: 25px;
+        }
+
+        .input-group {
+            text-align: left;
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-size: 12px;
+            color: #555;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            border-color: var(--chocolate);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--chocolate);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .login-btn:hover {
+            opacity: 0.9;
+        }
+
+        .footer-links {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #888;
+        }
+
+        .footer-links a {
+            color: var(--chocolate);
+            text-decoration: none;
+        }
     </style>
 </head>
+
 <body>
 
-    <div class="login-container">
-        <div class="school-logo">
-            <div class="logo-placeholder">BIS</div>
-        </div>
-        
-        <h2>Benaiah International School</h2>
-        <p class="motto">"Courage, Initiative and Success"</p>
+<div class="login-container">
 
-        <form id="loginForm">
-            <div class="input-group">
-                <label for="username">Username / ID Number</label>
-                <input type="text" id="username" placeholder="BIS/STU/001" required>
-            </div>
-
-            <div class="input-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" placeholder="••••••••" required>
-            </div>
-
-            <button type="submit" class="login-btn">Secure Login</button>
-        </form>
-
-        <div class="footer-links">
-            <a href="#">Forgot Password?</a>
-            <p>Secondary Section Portal</p>
-        </div>
+    <div class="school-logo">
+        <div class="logo-placeholder">BIS</div>
     </div>
 
-    <script>
-        localStorage.removeItem('currentUser');
+    <h2>Benaiah International School</h2>
+    <p class="motto">"Courage, Initiative and Success"</p>
 
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+    <form id="loginForm">
 
-            const userIn = document.getElementById('username').value.trim().toLowerCase();
-            const passIn = document.getElementById('password').value.trim();
-            
-            // 1. PROPRIETRESS BYPASS
-            if (userIn === "suzan yusuf" || userIn === "bis/prop/001") {
-                if (passIn === "BIS2026") {
-                    const propUser = { 
-                        username: "BIS/PROP/001", 
-                        fullName: "Suzan Yusuf", 
-                        role: "proprietress" 
-                    };
-                    localStorage.setItem('currentUser', JSON.stringify(propUser));
-                    window.location.href = 'proprietress_dash.html';
-                    return;
-                }
-            }
+        <div class="input-group">
+            <label>Username / ID Number</label>
+            <input type="text" id="username" placeholder="BIS/STU/001" required>
+        </div>
 
-            // 2. SEARCH DATABASE
-            const users = JSON.parse(localStorage.getItem('bis_users')) || [];
-            
-            const user = users.find(u => 
-                (u.username.toLowerCase() === userIn || u.fullName.toLowerCase() === userIn) && 
-                String(u.password) === passIn
+        <div class="input-group">
+            <label>Password</label>
+            <input type="password" id="password" placeholder="••••••••" required>
+        </div>
+
+        <button type="submit" class="login-btn">
+            Secure Login
+        </button>
+
+    </form>
+
+    <div class="footer-links">
+        <a href="#">Forgot Password?</a>
+        <p>Secondary Section Portal</p>
+    </div>
+
+</div>
+
+
+
+<!-- 🔥 FIREBASE LOGIN -->
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+    getFirestore,
+    collection,
+    query,
+    where,
+    getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+
+
+/* 🔴 PASTE YOUR FIREBASE CONFIG HERE */
+const firebaseConfig = {
+
+    apiKey: "PASTE",
+    authDomain: "PASTE",
+    projectId: "PASTE",
+    storageBucket: "PASTE",
+    messagingSenderId: "PASTE",
+    appId: "PASTE"
+
+};
+
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+
+
+// LOGIN
+document.getElementById('loginForm')
+.addEventListener('submit', async (e) => {
+
+    e.preventDefault();
+
+    const username =
+        document.getElementById('username')
+        .value.trim()
+        .toLowerCase();
+
+    const password =
+        document.getElementById('password')
+        .value.trim();
+
+
+    try {
+
+        const q = query(
+            collection(db, "users"),
+            where("username", "==", username),
+            where("password", "==", password)
+        );
+
+        const snapshot = await getDocs(q);
+
+
+        if (!snapshot.empty) {
+
+            const user = snapshot.docs[0].data();
+
+            // keep session
+            localStorage.setItem(
+                "currentUser",
+                JSON.stringify(user)
             );
 
-            if (user) {
-                localStorage.setItem('currentUser', JSON.stringify(user));
 
-                // Standardizing the role for routing
-                const role = (user.role || "").toLowerCase();
+            const role = user.role.toLowerCase();
 
-                // 3. REDIRECTION LOGIC
-                if (role === "proprietress") {
-                    window.location.href = 'proprietress_dash.html';
-                } 
-                else if (role === "principal") {
-                    window.location.href = 'principal_dash.html';
-                } 
-                else if (role === "teacher") {
-                    window.location.href = 'teacher_dash.html';
-                } 
-                else if (role === "student") {
-                    window.location.href = 'student_dash.html';
-                } 
-                else {
-                    alert("Dashboard not found for role: " + role);
-                }
-            } else {
-                alert("Invalid Credentials. Please check your ID and Password.");
-            }
-        });
-    </script>
+
+            if (role === "proprietress")
+                window.location.href = "proprietress_dash.html";
+
+            else if (role === "principal")
+                window.location.href = "principal_dash.html";
+
+            else if (role === "teacher")
+                window.location.href = "teacher_dash.html";
+
+            else if (role === "student")
+                window.location.href = "student_dash.html";
+
+            else
+                alert("No dashboard assigned.");
+
+        }
+
+        else {
+
+            alert("Invalid username or password");
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.error("LOGIN ERROR:", error);
+        alert("Something went wrong — check console.");
+
+    }
+
+});
+
+</script>
+
 </body>
 </html>
