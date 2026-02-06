@@ -1,162 +1,344 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staff Directory - BIS</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        :root {
-            --chocolate: #3E2723;
-            --cream: #FFF8E1;
-            --gold: #FFB300;
-            --white: #ffffff;
-            --danger: #d32f2f;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background-color: #fcfaf5; padding: 20px; }
+<title>Staff Directory - BIS</title>
 
-        .header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--chocolate); }
-        .back-btn { font-size: 24px; cursor: pointer; color: var(--chocolate); text-decoration: none; }
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-        .search-box {
-            background: var(--white);
-            display: flex;
-            align-items: center;
-            padding: 10px 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-        .search-box input {
-            border: none;
-            outline: none;
-            width: 100%;
-            margin-left: 10px;
-            font-size: 14px;
-        }
+<style>
 
-        .staff-card {
-            background: var(--white);
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            border-left: 5px solid var(--gold);
-        }
+:root{
+--chocolate:#3E2723;
+--cream:#FFF8E1;
+--gold:#FFB300;
+--white:#ffffff;
+--danger:#d32f2f;
+}
 
-        .staff-info { flex: 1; }
-        .staff-info h4 { color: var(--chocolate); font-size: 16px; text-transform: capitalize; }
-        .staff-info p { font-size: 12px; color: #777; margin-top: 5px; line-height: 1.4; }
-        
-        .role-badge { 
-            display: inline-block; 
-            padding: 2px 8px; 
-            background: var(--cream); 
-            border-radius: 4px; 
-            font-size: 10px; 
-            text-transform: uppercase; 
-            font-weight: bold;
-            color: var(--chocolate);
-            margin-bottom: 5px;
-        }
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Segoe UI',sans-serif;
+}
 
-        .subject-list { color: var(--chocolate); font-weight: 600; }
+body{
+background:#fcfaf5;
+padding:20px;
+}
 
-        .delete-btn {
-            color: var(--danger);
-            font-size: 18px;
-            padding: 10px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .delete-btn:active { transform: scale(0.8); }
+.header{
+display:flex;
+align-items:center;
+gap:15px;
+margin-bottom:20px;
+color:var(--chocolate);
+}
 
-        .empty-msg { text-align: center; color: #999; margin-top: 50px; }
-    </style>
+.back-btn{
+font-size:24px;
+color:var(--chocolate);
+text-decoration:none;
+}
+
+.search-box{
+background:var(--white);
+display:flex;
+align-items:center;
+padding:10px 15px;
+border-radius:10px;
+margin-bottom:20px;
+box-shadow:0 2px 8px rgba(0,0,0,.05);
+}
+
+.search-box input{
+border:none;
+outline:none;
+width:100%;
+margin-left:10px;
+font-size:14px;
+}
+
+.staff-card{
+background:var(--white);
+padding:15px;
+border-radius:12px;
+margin-bottom:12px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+box-shadow:0 2px 8px rgba(0,0,0,.05);
+border-left:5px solid var(--gold);
+}
+
+.staff-info{
+flex:1;
+}
+
+.staff-info h4{
+color:var(--chocolate);
+font-size:16px;
+text-transform:capitalize;
+}
+
+.staff-info p{
+font-size:12px;
+color:#777;
+margin-top:5px;
+}
+
+.role-badge{
+display:inline-block;
+padding:2px 8px;
+background:var(--cream);
+border-radius:4px;
+font-size:10px;
+text-transform:uppercase;
+font-weight:bold;
+color:var(--chocolate);
+margin-bottom:5px;
+}
+
+.subject-list{
+color:var(--chocolate);
+font-weight:600;
+}
+
+.delete-btn{
+color:var(--danger);
+font-size:18px;
+padding:10px;
+cursor:pointer;
+}
+
+.empty-msg{
+text-align:center;
+color:#999;
+margin-top:50px;
+}
+
+</style>
 </head>
 <body>
 
-    <div class="header">
-        <a href="principal_dash.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
-        <h2>Staff Directory</h2>
-    </div>
+<div class="header">
+<a href="principal_dash.html" class="back-btn">
+<i class="fas fa-arrow-left"></i>
+</a>
+<h2>Staff Directory</h2>
+</div>
 
-    <div class="search-box">
-        <i class="fas fa-search" style="color: #ccc;"></i>
-        <input type="text" id="searchInput" placeholder="Search by name or ID..." onkeyup="filterStaff()">
-    </div>
+<div class="search-box">
+<i class="fas fa-search" style="color:#ccc;"></i>
+<input
+type="text"
+id="searchInput"
+placeholder="Search by name or ID...">
+</div>
 
-    <div id="staffContainer"></div>
+<div id="staffContainer"></div>
 
-    <script>
-        function loadStaff() {
-            const container = document.getElementById('staffContainer');
-            const users = JSON.parse(localStorage.getItem('bis_users')) || [];
-            
-            // Filter for staff only
-            const staff = users.filter(u => u.role === 'principal' || u.role === 'admin' || u.role === 'teacher');
 
-            if (staff.length === 0) {
-                container.innerHTML = `<p class="empty-msg">No staff members found.</p>`;
-                return;
-            }
 
-            // Sort by role
-            staff.sort((a, b) => a.role.localeCompare(b.role));
+<script type="module">
 
-            container.innerHTML = staff.map((user) => {
-                // LOGIC FIX: Check for 'subjects' array and join with comma. 
-                // Handles case where subjects might be missing for admins.
-                const subjectDisplay = (user.subjects && Array.isArray(user.subjects) && user.subjects.length > 0) 
-                    ? user.subjects.join(", ") 
-                    : (user.role === 'admin' ? 'Management' : 'Not Assigned');
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
-                return `
-                <div class="staff-card" data-name="${user.fullName.toLowerCase()}" data-id="${user.username.toLowerCase()}">
-                    <div class="staff-info">
-                        <span class="role-badge">${user.designation || user.role}</span>
-                        <h4>${user.fullName}</h4>
-                        <p>
-                            <i class="fas fa-id-badge"></i> ${user.username} | 
-                            <i class="fas fa-book"></i> <span class="subject-list">${subjectDisplay}</span>
-                        </p>
-                    </div>
-                    <i class="fas fa-trash-alt delete-btn" title="Remove Staff" onclick="deleteStaff('${user.username}', '${user.fullName}')"></i>
-                </div>
-                `;
-            }).join('');
-        }
+import {
+getFirestore,
+collection,
+getDocs,
+deleteDoc,
+doc,
+query,
+where
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        function filterStaff() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
-            const cards = document.getElementsByClassName('staff-card');
 
-            for (let card of cards) {
-                const name = card.getAttribute('data-name');
-                const id = card.getAttribute('data-id');
-                if (name.includes(query) || id.includes(query)) {
-                    card.style.display = "flex";
-                } else {
-                    card.style.display = "none";
-                }
-            }
-        }
+// 🔥 FIREBASE CONFIG
+const firebaseConfig={
+apiKey:"AIzaSyBIQog_gsN6U-2JXwpv8CBSMLuP92W6a7Q",
+authDomain:"school-management-system-2f7de.firebaseapp.com",
+projectId:"school-management-system-2f7de",
+storageBucket:"school-management-system-2f7de.appspot.com",
+messagingSenderId:"518987437886",
+appId:"1:518987437886:web:3d451457c4a6457e007e6f"
+};
 
-        function deleteStaff(id, name) {
-            if (confirm(`Are you sure you want to remove ${name}?\nThis action cannot be undone.`)) {
-                let users = JSON.parse(localStorage.getItem('bis_users')) || [];
-                users = users.filter(u => u.username !== id);
-                localStorage.setItem('bis_users', JSON.stringify(users));
-                loadStaff(); 
-            }
-        }
+const app=initializeApp(firebaseConfig);
+const db=getFirestore(app);
 
-        window.onload = loadStaff;
-    </script>
+let staffCache=[];
+
+
+// LOAD STAFF
+async function loadStaff(){
+
+const container=document.getElementById("staffContainer");
+
+container.innerHTML="<p class='empty-msg'>Loading staff...</p>";
+
+try{
+
+const q=query(
+collection(db,"users"),
+where("role","in",["principal","admin","teacher"])
+);
+
+const snap=await getDocs(q);
+
+if(snap.empty){
+container.innerHTML="<p class='empty-msg'>No staff members found.</p>";
+return;
+}
+
+staffCache=snap.docs.map(d=>({
+docId:d.id,
+...d.data()
+}));
+
+renderStaff(staffCache);
+
+}catch(err){
+
+console.error(err);
+container.innerHTML="<p class='empty-msg'>Failed to load staff.</p>";
+
+}
+
+}
+
+
+
+// RENDER STAFF
+function renderStaff(list){
+
+const container=document.getElementById("staffContainer");
+
+if(list.length===0){
+container.innerHTML="<p class='empty-msg'>No matching staff.</p>";
+return;
+}
+
+container.innerHTML=list.map(user=>{
+
+let subjectDisplay="Management";
+
+if(user.role==="teacher"){
+
+if(user.subjects?.length){
+
+subjectDisplay=user.subjects.join(", ");
+
+if(user.classCategory){
+subjectDisplay+=` (${user.classCategory})`;
+}
+
+}else{
+subjectDisplay="Not Assigned";
+}
+
+}
+
+return`
+
+<div class="staff-card">
+
+<div class="staff-info">
+
+<span class="role-badge">
+${user.designation || user.role}
+</span>
+
+<h4>${user.fullName || "Unnamed"}</h4>
+
+<p>
+<i class="fas fa-id-badge"></i>
+${user.username || "No ID"}
+|
+<i class="fas fa-book"></i>
+
+<span class="subject-list">
+${subjectDisplay}
+</span>
+</p>
+
+</div>
+
+<i class="fas fa-trash-alt delete-btn"
+data-id="${user.docId}"
+data-name="${user.fullName || "this staff"}">
+</i>
+
+</div>
+
+`;
+
+}).join("");
+
+}
+
+
+
+// SEARCH (live)
+document
+.getElementById("searchInput")
+.addEventListener("input",e=>{
+
+const q=e.target.value.toLowerCase();
+
+const filtered=staffCache.filter(user=>
+(user.fullName||"").toLowerCase().includes(q)
+||
+(user.username||"").toLowerCase().includes(q)
+);
+
+renderStaff(filtered);
+
+});
+
+
+
+// DELETE (event delegation)
+document
+.getElementById("staffContainer")
+.addEventListener("click",async e=>{
+
+if(!e.target.classList.contains("delete-btn")) return;
+
+const id=e.target.dataset.id;
+const name=e.target.dataset.name;
+
+if(!confirm(`Remove ${name}? This cannot be undone.`))
+return;
+
+try{
+
+await deleteDoc(doc(db,"users",id));
+
+// reload from database for accuracy
+loadStaff();
+
+}catch(err){
+
+console.error(err);
+alert("Failed to delete staff.");
+
+}
+
+});
+
+
+
+loadStaff();
+
+</script>
+
 </body>
 </html>

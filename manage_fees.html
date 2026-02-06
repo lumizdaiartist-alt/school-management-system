@@ -1,157 +1,376 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Fees - BIS</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        :root {
-            --chocolate: #3E2723;
-            --cream: #FFF8E1;
-            --gold: #FFB300;
-            --white: #ffffff;
-            --green: #2e7d32;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manage Fees - BIS</title>
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background-color: #fcfaf5; padding: 15px; }
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-        .header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--chocolate); }
-        .back-btn { font-size: 24px; color: var(--chocolate); text-decoration: none; }
+<style>
+:root{
+--chocolate:#3E2723;
+--cream:#FFF8E1;
+--gold:#FFB300;
+--white:#ffffff;
+--green:#2e7d32;
+}
 
-        .search-container { margin-bottom: 20px; }
-        .search-box { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ddd; outline: none; }
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif;}
+body{background:#fcfaf5;padding:15px;}
 
-        .student-list { max-height: 300px; overflow-y: auto; background: white; border-radius: 10px; border: 1px solid #eee; }
-        .list-item { padding: 12px; border-bottom: 1px solid #f9f9f9; cursor: pointer; display: flex; justify-content: space-between; }
-        .list-item:hover { background: var(--cream); }
+.header{
+display:flex;
+align-items:center;
+gap:15px;
+margin-bottom:20px;
+color:var(--chocolate);
+}
 
-        /* Payment Card */
-        .payment-card {
-            background: var(--white); border-radius: 20px; padding: 25px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-top: 20px;
-            display: none; /* Shown only when student selected */
-        }
-        .fee-status {
-            padding: 15px; border-radius: 12px; text-align: center;
-            margin: 15px 0; font-weight: bold;
-        }
-        .status-owing { background: #ffebee; color: #c62828; }
-        .status-paid { background: #e8f5e9; color: #2e7d32; }
+.back-btn{
+font-size:24px;
+color:var(--chocolate);
+text-decoration:none;
+}
 
-        .input-group { margin-top: 15px; }
-        .input-group label { display: block; font-size: 13px; color: #666; margin-bottom: 5px; }
-        .input-group input { width: 100%; padding: 12px; border: 1.5px solid #ddd; border-radius: 10px; font-size: 16px; }
+.search-box{
+width:100%;
+padding:12px;
+border-radius:10px;
+border:1px solid #ddd;
+margin-bottom:10px;
+}
 
-        .pay-btn {
-            width: 100%; padding: 15px; background: var(--chocolate);
-            color: white; border: none; border-radius: 10px;
-            font-size: 16px; font-weight: bold; margin-top: 20px; cursor: pointer;
-        }
-    </style>
+.student-list{
+max-height:300px;
+overflow-y:auto;
+background:white;
+border-radius:10px;
+border:1px solid #eee;
+}
+
+.list-item{
+padding:12px;
+border-bottom:1px solid #f5f5f5;
+cursor:pointer;
+display:flex;
+justify-content:space-between;
+}
+
+.list-item:hover{
+background:var(--cream);
+}
+
+.payment-card{
+background:white;
+border-radius:20px;
+padding:25px;
+margin-top:20px;
+box-shadow:0 4px 15px rgba(0,0,0,.08);
+display:none;
+}
+
+.fee-status{
+padding:15px;
+border-radius:12px;
+text-align:center;
+margin:15px 0;
+font-weight:bold;
+}
+
+.status-owing{
+background:#ffebee;
+color:#c62828;
+}
+
+.status-paid{
+background:#e8f5e9;
+color:#2e7d32;
+}
+
+.input-group{
+margin-top:15px;
+}
+
+.input-group input{
+width:100%;
+padding:12px;
+border-radius:10px;
+border:1px solid #ddd;
+}
+
+.pay-btn{
+width:100%;
+padding:15px;
+background:var(--chocolate);
+color:white;
+border:none;
+border-radius:10px;
+font-weight:bold;
+margin-top:20px;
+cursor:pointer;
+}
+</style>
 </head>
+
 <body>
 
-    <div class="header">
-        <a href="principal_dash.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
-        <h2>Manage Student Fees</h2>
-    </div>
+<div class="header">
+<a href="principal_dash.html" class="back-btn">
+<i class="fas fa-arrow-left"></i>
+</a>
+<h2>Manage Student Fees</h2>
+</div>
 
-    <div class="search-container">
-        <input type="text" id="stuSearch" class="search-box" placeholder="Search student name to pay..." onkeyup="searchStudents()">
-        <div id="searchResults" class="student-list"></div>
-    </div>
+<input type="text"
+id="stuSearch"
+class="search-box"
+placeholder="Search student name...">
 
-    <div id="paymentCard" class="payment-card">
-        <h3 id="payName" style="color: var(--chocolate);">Student Name</h3>
-        <p id="payID" style="color: var(--gold); font-size: 13px; font-weight: bold;">BIS/STU/001</p>
-        
-        <div id="feeStatus" class="fee-status">
-            Calculating...
-        </div>
+<div id="searchResults" class="student-list"></div>
 
-        <div class="detail-grid" style="font-size: 14px; color: #555;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                <span>Total Fee:</span> <span id="totalFee">₦0</span>
-            </div>
-            <div style="display: flex; justify-content: space-between;">
-                <span>Balance Remaining:</span> <span id="balanceRem">₦0</span>
-            </div>
-        </div>
 
-        <div class="input-group">
-            <label>Amount to Pay (₦)</label>
-            <input type="number" id="payAmount" placeholder="Enter amount">
-        </div>
+<div id="paymentCard" class="payment-card">
 
-        <button class="pay-btn" onclick="processPayment()">Record Payment</button>
-    </div>
+<h3 id="payName"></h3>
+<p id="payID" style="color:var(--gold);font-weight:bold;"></p>
 
-    <script>
-        let selectedStudent = null;
+<div id="feeStatus" class="fee-status">
+Calculating...
+</div>
 
-        function searchStudents() {
-            const query = document.getElementById('stuSearch').value.toLowerCase();
-            const results = document.getElementById('searchResults');
-            const allUsers = JSON.parse(localStorage.getItem('bis_users')) || [];
-            const students = allUsers.filter(u => u.role === 'student' && u.fullName.toLowerCase().includes(query));
+<div style="display:flex;justify-content:space-between;">
+<span>Total Fee:</span>
+<span id="totalFee">₦0</span>
+</div>
 
-            if (query === "") { results.innerHTML = ""; return; }
+<div style="display:flex;justify-content:space-between;margin-top:5px;">
+<span>Balance:</span>
+<span id="balanceRem">₦0</span>
+</div>
 
-            results.innerHTML = students.map(s => `
-                <div class="list-item" onclick="selectStudent('${s.username}')">
-                    <span>${s.fullName}</span>
-                    <span style="font-size: 12px; color: #999;">${s.studentClass}</span>
-                </div>
-            `).join('');
-        }
+<div class="input-group">
+<label>Amount to Pay (₦)</label>
+<input type="number" id="payAmount">
+</div>
 
-        function selectStudent(id) {
-            const allUsers = JSON.parse(localStorage.getItem('bis_users')) || [];
-            selectedStudent = allUsers.find(u => u.username === id);
-            
-            if (selectedStudent) {
-                document.getElementById('searchResults').innerHTML = "";
-                document.getElementById('stuSearch').value = selectedStudent.fullName;
-                
-                // Show Card
-                document.getElementById('paymentCard').style.display = 'block';
-                document.getElementById('payName').innerText = selectedStudent.fullName;
-                document.getElementById('payID').innerText = selectedStudent.username;
+<button class="pay-btn" onclick="processPayment()">
+Record Payment
+</button>
 
-                // Logic for 82k/77k
-                let total = selectedStudent.studentClass.startsWith("SS") ? 82000 : 77000;
-                let balance = total - selectedStudent.amountPaid;
+</div>
 
-                document.getElementById('totalFee').innerText = "₦" + total.toLocaleString();
-                document.getElementById('balanceRem').innerText = "₦" + balance.toLocaleString();
 
-                const statusDiv = document.getElementById('feeStatus');
-                if (balance <= 0) {
-                    statusDiv.innerText = "FULLY PAID";
-                    statusDiv.className = "fee-status status-paid";
-                } else {
-                    statusDiv.innerText = "OWING: ₦" + balance.toLocaleString();
-                    statusDiv.className = "fee-status status-owing";
-                }
-            }
-        }
 
-        function processPayment() {
-            const amount = parseFloat(document.getElementById('payAmount').value);
-            if (!amount || amount <= 0) { alert("Enter a valid amount"); return; }
+<script type="module">
 
-            let allUsers = JSON.parse(localStorage.getItem('bis_users')) || [];
-            const index = allUsers.findIndex(u => u.username === selectedStudent.username);
+/* 🔥 FIREBASE */
 
-            // Update payment
-            allUsers[index].amountPaid += amount;
-            localStorage.setItem('bis_users', JSON.stringify(allUsers));
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
-            alert("Payment Successful!");
-            location.reload(); // Refresh to see updated balance
-        }
-    </script>
+import {
+getFirestore,
+collection,
+query,
+where,
+getDocs,
+doc,
+updateDoc,
+increment
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+
+const firebaseConfig = {
+
+apiKey: "AIzaSyBIQog_gsN6U-2JXwpv8CBSMLuP92W6a7Q",
+authDomain: "school-management-system-2f7de.firebaseapp.com",
+projectId: "school-management-system-2f7de",
+storageBucket: "school-management-system-2f7de.appspot.com",
+messagingSenderId: "518987437886",
+appId: "1:518987437886:web:3d451457c4a6457e007e6f"
+
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+
+/* GLOBAL */
+
+let students = [];
+let selectedStudent = null;
+
+
+/* LOAD STUDENTS ONCE (FAST) */
+
+const q = query(
+collection(db,"users"),
+where("role","==","student")
+);
+
+const snap = await getDocs(q);
+
+snap.forEach(d=>{
+
+students.push({
+id:d.id,
+...d.data()
+});
+
+});
+
+
+/* SEARCH */
+
+const searchBox =
+document.getElementById("stuSearch");
+
+searchBox.addEventListener("input", ()=>{
+
+const val =
+searchBox.value.toLowerCase();
+
+const results =
+document.getElementById("searchResults");
+
+if(!val){
+results.innerHTML="";
+return;
+}
+
+const filtered =
+students.filter(s=>
+s.fullName?.toLowerCase().includes(val)
+);
+
+results.innerHTML =
+filtered.map(s=>`
+
+<div class="list-item"
+onclick="window.selectStudent('${s.id}')">
+
+<span>${s.fullName}</span>
+
+<span style="font-size:12px;color:#999;">
+${s.studentClass || "---"}
+</span>
+
+</div>
+
+`).join("");
+
+});
+
+
+
+/* SELECT STUDENT */
+
+window.selectStudent = function(id){
+
+selectedStudent =
+students.find(s=>s.id===id);
+
+if(!selectedStudent) return;
+
+document.getElementById("paymentCard")
+.style.display="block";
+
+document.getElementById("payName")
+.innerText = selectedStudent.fullName;
+
+document.getElementById("payID")
+.innerText = selectedStudent.username;
+
+
+/* Fee Logic */
+
+const total =
+selectedStudent.studentClass?.startsWith("SS")
+? 82000 : 77000;
+
+const paid =
+selectedStudent.amountPaid || 0;
+
+const balance =
+total - paid;
+
+document.getElementById("totalFee")
+.innerText="₦"+total.toLocaleString();
+
+document.getElementById("balanceRem")
+.innerText="₦"+balance.toLocaleString();
+
+
+const status =
+document.getElementById("feeStatus");
+
+if(balance<=0){
+
+status.innerText="FULLY PAID";
+status.className="fee-status status-paid";
+
+}else{
+
+status.innerText=
+"OWING: ₦"+balance.toLocaleString();
+
+status.className="fee-status status-owing";
+
+}
+
+};
+
+
+
+/* PROCESS PAYMENT */
+
+window.processPayment = async function(){
+
+const amount =
+parseFloat(
+document.getElementById("payAmount").value
+);
+
+if(!amount || amount<=0){
+alert("Enter valid amount");
+return;
+}
+
+
+/* Prevent overpay */
+
+const total =
+selectedStudent.studentClass?.startsWith("SS")
+? 82000 : 77000;
+
+const paid =
+selectedStudent.amountPaid || 0;
+
+if(paid + amount > total){
+alert("Payment exceeds required fee.");
+return;
+}
+
+
+/* Update Firestore */
+
+const ref =
+doc(db,"users",selectedStudent.id);
+
+await updateDoc(ref,{
+amountPaid: increment(amount)
+});
+
+alert("Payment Recorded Successfully!");
+
+location.reload();
+
+};
+
+</script>
+
 </body>
 </html>

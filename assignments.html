@@ -99,7 +99,6 @@ h2{ margin-bottom:15px; }
     <div class="modal-content">
         <h3 id="mTitle"></h3>
         <p id="mDesc"></p>
-
         <div class="meta" id="mMeta"></div>
 
         <button class="btn done-btn" onclick="markDone()">✔ Mark as Done</button>
@@ -107,85 +106,179 @@ h2{ margin-bottom:15px; }
     </div>
 </div>
 
-<script>
-// AUTH
+
+<!-- ✅ FIREBASE -->
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+getFirestore,
+collection,
+getDocs,
+query,
+where,
+addDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+
+// 🔥 YOUR CONFIG (already inserted)
+const firebaseConfig = {
+  apiKey: "AIzaSyBIQog_gsN6U-2JXwpv8CBSMLuP92W6a7Q",
+  authDomain: "school-management-system-2f7de.firebaseapp.com",
+  projectId: "school-management-system-2f7de",
+  storageBucket: "school-management-system-2f7de.firebasestorage.app",
+  messagingSenderId: "518987437886",
+  appId: "1:518987437886:web:3d451457c4a6457e007e6f",
+  measurementId: "G-KW2273D3C2"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+
+// 🔐 AUTH
 const user = JSON.parse(localStorage.getItem("currentUser"));
+
 if(!user){
     alert("Session expired");
     location.href="index.html";
 }
 
-// NORMALIZE CLASS
+const studentUsername = user.username;
+
 const studentClass = (user.class || user.grade || "")
 .replace(/\s/g,'')
 .toUpperCase();
 
-// STORAGE KEYS
-const ASSIGN_KEY = "bis_assignments";
-const DONE_KEY = "bis_done_assignments_" + user.username;
-
-// DATA
-const allAssignments = JSON.parse(localStorage.getItem(ASSIGN_KEY)) || [];
-const doneIDs = JSON.parse(localStorage.getItem(DONE_KEY)) || [];
 
 let activeAssignment = null;
+let assignmentsCache = [];
 
-// FILTER
-const myAssignments = allAssignments.filter(a=>{
-    if(!a.grade) return false;
-    const g = a.grade.replace(/\s/g,'').toUpperCase();
-    return g === studentClass && !doneIDs.includes(a.id);
-});
+loadAssignments();
 
-render(myAssignments);
 
-// RENDER
+// 🚀 LOAD FROM FIREBASE
+async function loadAssignments(){
+
+const list = document.getElementById("list");
+list.innerHTML = "Loading assignments...";
+
+try{
+
+    // get assignments
+    const snap = await getDocs(collection(db,"assignments"));
+
+    const assignments = snap.docs.map(doc=>({
+        id:doc.id,
+        ...doc.data()
+    }));
+
+
+    // get DONE assignments for THIS student
+    const doneQuery = query(
+        collection(db,"assignment_done"),
+        where("studentUsername","==",studentUsername)
+    );
+
+    const doneSnap = await getDocs(doneQuery);
+
+    const doneIDs = doneSnap.docs.map(d=>d.data().assignmentId);
+
+
+    // FILTER
+    const myAssignments = assignments.filter(a=>{
+
+        if(!a.grade) return false;
+
+        const g = a.grade.replace(/\s/g,'').toUpperCase();
+
+        return g === studentClass && !doneIDs.includes(a.id);
+    });
+
+    assignmentsCache = myAssignments;
+
+    render(myAssignments);
+
+}catch(err){
+console.error(err);
+list.innerHTML="Failed to load assignments.";
+}
+
+}
+
+
+
+// 🎨 RENDER
 function render(data){
+
 const list = document.getElementById("list");
 
-if(data.length === 0){
+if(data.length===0){
 list.innerHTML = `<div class="empty">No assignments 🎉</div>`;
 return;
 }
 
 list.innerHTML = data.reverse().map(a=>`
-<div class="card" onclick='openModal(${JSON.stringify(a)})'>
+<div class="card" onclick="openModal('${a.id}')">
     <div class="title">${a.title}</div>
-    <div class="meta">${a.teacher} • ${a.date}</div>
+    <div class="meta">${a.teacher || "Teacher"} • ${a.date || ""}</div>
 </div>
 `).join("");
+
 }
 
-// MODAL
-function openModal(a){
-activeAssignment = a;
 
-document.getElementById("mTitle").innerText = a.title;
-document.getElementById("mDesc").innerText = a.description;
+// 📌 MODAL
+window.openModal = function(id){
+
+activeAssignment = assignmentsCache.find(a=>a.id===id);
+
+document.getElementById("mTitle").innerText = activeAssignment.title;
+document.getElementById("mDesc").innerText = activeAssignment.description;
+
 document.getElementById("mMeta").innerHTML = `
-Teacher: ${a.teacher}<br>
-Class: ${a.grade}<br>
-Date: ${a.date}
+Teacher: ${activeAssignment.teacher || "Teacher"}<br>
+Class: ${activeAssignment.grade}<br>
+Date: ${activeAssignment.date || ""}
 `;
 
 document.getElementById("modal").style.display="flex";
+
 }
 
-function closeModal(){
+
+window.closeModal = function(){
 document.getElementById("modal").style.display="none";
 activeAssignment=null;
 }
 
-// DONE
-function markDone(){
+
+
+// ✅ MARK DONE (PERMANENTLY HIDDEN)
+window.markDone = async function(){
+
 if(!activeAssignment) return;
 
-doneIDs.push(activeAssignment.id);
-localStorage.setItem(DONE_KEY, JSON.stringify(doneIDs));
+try{
+
+await addDoc(collection(db,"assignment_done"),{
+assignmentId: activeAssignment.id,
+studentUsername: studentUsername,
+doneAt: Date.now()
+});
 
 closeModal();
-location.reload();
+
+loadAssignments(); // instant refresh
+
+}catch(err){
+console.error(err);
+alert("Failed to mark as done.");
 }
+
+}
+
 </script>
 
 </body>

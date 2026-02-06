@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Benaiah Secondary Portal</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+:root { --chocolate:#3E2723; --gold:#FFB300; }
+
+body{
+    background:#fcfaf5;
+    font-family:'Segoe UI',sans-serif;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    margin:0;
+}
+
+.login-container{
+    background:white;
+    padding:40px;
+    border-radius:20px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.1);
+    width:100%;
+    max-width:350px;
+    text-align:center;
+}
+
+.logo-placeholder{
+    background:var(--chocolate);
+    color:var(--gold);
+    width:60px;
+    height:60px;
+    line-height:60px;
+    border-radius:50%;
+    margin:0 auto 15px;
+    font-weight:bold;
+    font-size:20px;
+}
+
+.input-group{
+    text-align:left;
+    margin-bottom:15px;
+}
+
+label{
+    font-size:12px;
+    font-weight:600;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    border:1px solid #ddd;
+    border-radius:8px;
+}
+
+.login-btn{
+    width:100%;
+    padding:12px;
+    background:var(--chocolate);
+    color:white;
+    border:none;
+    border-radius:8px;
+    font-weight:bold;
+    cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="login-container">
+
+<div class="logo-placeholder">BIS</div>
+
+<h2>Benaiah International School</h2>
+<p style="font-size:11px;color:#777;margin-bottom:25px;">
+"Courage, Initiative and Success"
+</p>
+
+<form id="loginForm">
+
+<div class="input-group">
+<label>Username / ID</label>
+<input type="text" id="username" required>
+</div>
+
+<div class="input-group">
+<label>Password</label>
+<input type="password" id="password" required>
+</div>
+
+<button class="login-btn">Secure Login</button>
+
+</form>
+
+</div>
+
+<!-- 🔥 FIREBASE LOGIN -->
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+getFirestore,
+collection,
+getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+
+const firebaseConfig = {
+apiKey: "AIzaSyBIQog_gsN6U-2JXwpv8CBSMLuP92W6a7Q",
+authDomain: "school-management-system-2f7de.firebaseapp.com",
+projectId: "school-management-system-2f7de",
+storageBucket: "school-management-system-2f7de.firebasestorage.app",
+messagingSenderId: "518987437886",
+appId: "1:518987437886:web:3d451457c4a6457e007e6f"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+
+
+document.getElementById("loginForm")
+.addEventListener("submit", async (e)=>{
+
+e.preventDefault();
+
+const inputUsername =
+document.getElementById("username")
+.value.trim()
+.toLowerCase();
+
+const inputPassword =
+document.getElementById("password")
+.value.trim();
+
+try{
+
+// ✅ Pull ALL users (more reliable than where)
+const snapshot = await getDocs(collection(db,"users"));
+
+let matchedUser = null;
+
+snapshot.forEach(doc=>{
+
+const data = doc.data();
+
+// normalize username
+const dbUsername =
+(data.username || "")
+.trim()
+.toLowerCase();
+
+if(
+dbUsername === inputUsername &&
+data.password === inputPassword
+){
+matchedUser = data;
+}
+
+});
+
+if(!matchedUser){
+alert("Invalid username or password");
+return;
+}
+
+
+// ✅ SAVE SESSION
+localStorage.setItem(
+"currentUser",
+JSON.stringify(matchedUser)
+);
+
+
+// ✅ REDIRECT
+const role = matchedUser.role.toLowerCase();
+
+if(role === "proprietress")
+location.href = "proprietress_dash.html";
+
+else if(role === "principal")
+location.href = "principal_dash.html";
+
+else if(role === "teacher")
+location.href = "teacher_dash.html";
+
+else if(role === "student")
+location.href = "student_dash.html";
+
+else
+alert("No dashboard assigned");
+
+}catch(err){
+
+console.error("LOGIN ERROR:",err);
+alert("Login failed — check console");
+
+}
+
+});
+
+</script>
+
+</body>
+</html>

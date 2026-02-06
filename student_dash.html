@@ -5,19 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Student Dashboard - BIS</title>
 
+<!-- 🔐 PROTECT PAGE -->
 <script>
-(function() {
-    const user = JSON.parse(localStorage.getItem('currentUser'));
-    if (!user || user.role !== 'student') {
-        window.location.replace('index.html');
+(function () {
+    const user = JSON.parse(localStorage.getItem("currentUser"));
+    if (!user || user.role !== "student") {
+        window.location.replace("index.html");
     }
 })();
 </script>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
-:root {
+:root{
 --chocolate:#3E2723;
 --cream:#FFF8E1;
 --gold:#FFB300;
@@ -28,9 +29,19 @@
 
 html{display:none;}
 
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif;}
-body{background-color:var(--bg);color:var(--text);}
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Segoe UI',sans-serif;
+}
 
+body{
+background:var(--bg);
+color:var(--text);
+}
+
+/* HEADER */
 .header{
 background:var(--chocolate);
 padding:40px 20px;
@@ -40,15 +51,18 @@ border-bottom-right-radius:30px;
 text-align:center;
 }
 
-.header h1{font-size:26px;}
-.header p{
-opacity:0.8;
-font-size:14px;
-margin-top:5px;
-color:var(--gold);
-font-weight:bold;
+.header h1{
+font-size:26px;
 }
 
+.header p{
+margin-top:5px;
+font-size:14px;
+font-weight:bold;
+color:var(--gold);
+}
+
+/* ANNOUNCEMENT */
 .announcement-card{
 background:var(--cream);
 padding:15px;
@@ -56,11 +70,11 @@ border-radius:12px;
 margin:20px;
 border-left:5px solid var(--gold);
 box-shadow:0 2px 8px rgba(0,0,0,0.05);
-cursor:pointer;
 text-decoration:none;
 display:block;
 }
 
+/* NAV GRID */
 .nav-grid{
 display:grid;
 grid-template-columns:repeat(3,1fr);
@@ -101,6 +115,7 @@ border-radius:50px;
 font-weight:bold;
 }
 
+/* LOGOUT */
 .logout-btn{
 margin:30px 20px;
 padding:15px;
@@ -164,98 +179,79 @@ Profile
 </button>
 
 <script>
-
 document.documentElement.style.display="block";
 
 window.onload=function(){
 
-const user=JSON.parse(localStorage.getItem('currentUser'));
+const user=JSON.parse(localStorage.getItem("currentUser"));
 if(!user) return;
 
-document.getElementById('stdName').innerText=
-"Hi, "+user.fullName.split(' ')[0];
+// NAME
+document.getElementById("stdName").innerText =
+"Hi, " + user.fullName.split(" ")[0];
 
-document.getElementById('stdClass').innerText=
-"Class: "+(user.class||user.grade||"Not Assigned");
+// CLASS
+document.getElementById("stdClass").innerText =
+"Class: " + (user.class || user.grade || "Not Assigned");
 
-cleanOldAnnouncements(); // ⭐ NEW ENGINE
+cleanOldAnnouncements();
 loadLatestNews();
 loadAssignmentBadge();
 };
 
-
-/* =============================
-   DELETE ANNOUNCEMENTS >24hrs
-============================= */
-
+/* 🧹 CLEAN OLD ANNOUNCEMENTS */
 function cleanOldAnnouncements(){
 
-const DAY = 86400000; // 24hrs in ms
+const DAY = 86400000;
 
 let news =
-JSON.parse(localStorage.getItem('bis_announcements')) || [];
+JSON.parse(localStorage.getItem("bis_announcements")) || [];
 
 const now = Date.now();
 
 news = news.filter(a => {
-
-if(!a.createdAt) return true; // supports old announcements
-
+if(!a.createdAt) return true;
 return (now - a.createdAt) < DAY;
 });
 
-localStorage.setItem('bis_announcements', JSON.stringify(news));
+localStorage.setItem("bis_announcements", JSON.stringify(news));
 }
 
-
-
-/* =============================
-   ASSIGNMENT BADGE
-============================= */
-
+/* 🔔 ASSIGNMENT BADGE */
 function loadAssignmentBadge(){
 
-const user = JSON.parse(localStorage.getItem('currentUser'));
+const user = JSON.parse(localStorage.getItem("currentUser"));
 if(!user) return;
 
 const studentClass=(user.class||user.grade||"")
-.replace(/\s/g,'')
+.replace(/\s/g,"")
 .toUpperCase();
 
-const allAssignments=
-JSON.parse(localStorage.getItem('bis_assignments'))||[];
+const allAssignments =
+JSON.parse(localStorage.getItem("bis_assignments")) || [];
 
-const done=
-JSON.parse(localStorage.getItem('bis_done_assignments_'+user.username))||[];
+const done =
+JSON.parse(localStorage.getItem("bis_done_assignments_"+user.username)) || [];
 
-const pending=allAssignments.filter(a=>{
-
+const pending = allAssignments.filter(a=>{
 if(!a.grade) return false;
-
-const g=a.grade.replace(/\s/g,'').toUpperCase();
-
+const g = a.grade.replace(/\s/g,"").toUpperCase();
 return g===studentClass && !done.includes(a.id);
 });
 
 if(pending.length>0){
-
-document.getElementById('assignmentBadge').innerHTML=
+document.getElementById("assignmentBadge").innerHTML =
 `<span class="badge">${pending.length}</span>`;
 }
 }
 
-
-
-/* =============================
-   NEWS
-============================= */
-
+/* 📰 NEWS */
 function loadLatestNews(){
 
-const box=document.getElementById('announcementBox');
+const box=document.getElementById("announcementBox");
 
-const news=
-JSON.parse(localStorage.getItem('bis_announcements'))||[];
+const news =
+JSON.parse(localStorage.getItem("bis_announcements")) || [];
 
 if(news.length>0){
 
@@ -263,27 +259,84 @@ const latest=news[news.length-1];
 
 box.innerHTML=`
 <a href="news.html" class="announcement-card">
-<small style="color:var(--chocolate);font-weight:bold;letter-spacing:1px;">
+<small style="font-weight:bold;letter-spacing:1px;">
 LATEST UPDATE
 </small>
-
-<p style="font-size:13px;margin-top:5px;color:#5D4037;">
+<p style="font-size:13px;margin-top:5px;">
 ${latest.message}
 </p>
 </a>`;
 }
 }
 
-
-
-/* =============================
-   LOGOUT
-============================= */
-
+/* 🚪 LOGOUT */
 function logout(){
-localStorage.removeItem('currentUser');
-window.location.replace('index.html');
+localStorage.removeItem("currentUser");
+window.location.replace("index.html");
 }
+</script>
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, getDocs, query, orderBy, limit } 
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* 🔥 YOUR CONFIG */
+const firebaseConfig = {
+  apiKey: "AIzaSyBIQog_gsN6U-2JXwpv8CBSMLuP92W6a7Q",
+  authDomain: "school-management-system-2f7de.firebaseapp.com",
+  projectId: "school-management-system-2f7de",
+  storageBucket: "school-management-system-2f7de.firebasestorage.app",
+  messagingSenderId: "518987437886",
+  appId: "1:518987437886:web:3d451457c4a6457e007e6f",
+  measurementId: "G-KW2273D3C2"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+/* 🔥 OVERRIDE YOUR OLD FUNCTION */
+window.loadLatestNews = async function(){
+
+const box = document.getElementById("announcementBox");
+
+try{
+
+const q = query(
+collection(db,"announcements"),
+orderBy("createdAt","desc"),
+limit(1)
+);
+
+const snapshot = await getDocs(q);
+
+if(snapshot.empty) return;
+
+snapshot.forEach(doc=>{
+
+const latest = doc.data();
+
+box.innerHTML = `
+<a href="news.html" class="announcement-card">
+<small style="font-weight:bold;letter-spacing:1px;">
+LATEST UPDATE
+</small>
+
+<p style="font-size:13px;margin-top:5px;">
+${latest.message}
+</p>
+</a>
+`;
+
+});
+
+}catch(err){
+
+console.error("Announcement error:",err);
+
+}
+
+};
 
 </script>
 </body>

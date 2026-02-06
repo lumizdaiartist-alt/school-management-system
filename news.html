@@ -191,5 +191,91 @@ Posted on: ${item.date || 'Recently'}
 }
 
 </script>
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, getDocs, query, orderBy } 
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* 🔥 YOUR FIREBASE CONFIG */
+const firebaseConfig = {
+  apiKey: "AIzaSyBIQog_gsN6U-2JXwpv8CBSMLuP92W6a7Q",
+  authDomain: "school-management-system-2f7de.firebaseapp.com",
+  projectId: "school-management-system-2f7de",
+  storageBucket: "school-management-system-2f7de.firebasestorage.app",
+  messagingSenderId: "518987437886",
+  appId: "1:518987437886:web:3d451457c4a6457e007e6f",
+  measurementId: "G-KW2273D3C2"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+/* 🔁 OVERRIDE OLD LOCALSTORAGE LOADER */
+window.loadAllNews = async function(){
+
+const container = document.getElementById('fullNewsList');
+
+try{
+
+const q = query(
+collection(db,"announcements"),
+orderBy("createdAt","desc")
+);
+
+const snapshot = await getDocs(q);
+
+if(snapshot.empty){
+container.innerHTML = `
+<div class="empty-state">
+<i class="fas fa-bullhorn"></i>
+<p>No announcements have been posted yet.</p>
+</div>`;
+return;
+}
+
+let html = "";
+
+snapshot.forEach(doc=>{
+
+const item = doc.data();
+const date = item.createdAt
+? new Date(item.createdAt.seconds * 1000).toDateString()
+: "Recently";
+
+html += `
+<div class="news-item">
+
+<h4>
+<i class="fas fa-scroll"></i>
+Principal's Office
+</h4>
+
+<p>${item.message}</p>
+
+<span class="news-date">
+Posted on: ${date}
+</span>
+
+</div>
+`;
+
+});
+
+container.innerHTML = html;
+
+}catch(err){
+
+console.error("News load error:",err);
+
+container.innerHTML = `
+<div class="empty-state">
+<p>Error loading announcements</p>
+</div>`;
+}
+
+};
+
+</script>
 </body>
 </html>

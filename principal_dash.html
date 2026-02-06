@@ -307,7 +307,6 @@ position:relative;
 <span>Staff List</span>
 </a>
 
-<!-- ✅ NEW ANNOUNCEMENT BUTTON -->
 <a href="#" onclick="openAnnouncementModal()" class="menu-item btn-announce">
 <i class="fas fa-bullhorn" style="color:#ff9800;"></i>
 <span>Post Announcement</span>
@@ -320,7 +319,6 @@ position:relative;
 
 </div>
 
-<!-- SETTINGS MODAL -->
 <div class="modal-overlay" id="settingsModal">
 <div class="modal-content">
 <span onclick="toggleSettings(false)" style="position:absolute;top:15px;right:20px;cursor:pointer;">&times;</span>
@@ -338,7 +336,6 @@ Save Changes
 </div>
 </div>
 
-<!-- ✅ ANNOUNCEMENT MODAL -->
 <div class="modal-overlay" id="announcementModal">
 <div class="modal-content">
 <span onclick="closeAnnouncementModal()" style="position:absolute;top:15px;right:20px;cursor:pointer;">&times;</span>
@@ -357,171 +354,190 @@ Publish Announcement
 </div>
 
 <script>
-
+/* --- LOCAL STORAGE & UI LOGIC --- */
 window.onload=function(){
+    const user=JSON.parse(localStorage.getItem('currentUser'));
 
-const user=JSON.parse(localStorage.getItem('currentUser'));
+    if(!user || user.role!=='principal'){
+        window.location.href='index.html';
+        return;
+    }
 
-if(!user || user.role!=='principal'){
-window.location.href='index.html';
-return;
+    document.getElementById('principalName').innerText="Welcome, "+user.fullName;
+    document.getElementById('principalID').innerText="Staff ID: "+user.username;
+    document.getElementById('editPrincipalName').value=user.fullName;
+
+    // Trigger Firebase Stats
+    setTimeout(()=>{
+        if(typeof refreshStats === 'function') refreshStats();
+    }, 800);
+
+    loadReportsAndNotifs();
 }
 
-document.getElementById('principalName').innerText="Welcome, "+user.fullName;
-document.getElementById('principalID').innerText="Staff ID: "+user.username;
-document.getElementById('editPrincipalName').value=user.fullName;
-
-refreshStats();
-loadReportsAndNotifs();
-}
-
-/* REPORTS + NOTIFS */
 function loadReportsAndNotifs(){
+    const results=JSON.parse(localStorage.getItem('bis_results'))||{};
+    const reportsBox=document.getElementById('reportsBox');
+    const notifList=document.getElementById('notifList');
+    const badge=document.getElementById('notifBadge');
+    const lastRead=parseInt(localStorage.getItem('bis_last_read_count'))||0;
 
-const results=JSON.parse(localStorage.getItem('bis_results'))||{};
-const reportsBox=document.getElementById('reportsBox');
-const notifList=document.getElementById('notifList');
-const badge=document.getElementById('notifBadge');
+    let reportHtml="";
+    let notifHtml="";
+    let count=0;
 
-const lastRead=parseInt(localStorage.getItem('bis_last_read_count'))||0;
+    for(let cls in results){
+        for(let subject in results[cls]){
+            count++;
+            reportHtml+=`
+            <div class="report-item">
+                <div class="report-icon"><i class="fas fa-file-csv"></i></div>
+                <div>
+                    <h4 style="font-size:13px;">${subject} Uploaded</h4>
+                    <p style="font-size:11px;color:#666;">Class: ${cls}</p>
+                </div>
+            </div>`;
 
-let reportHtml="";
-let notifHtml="";
-let count=0;
+            notifHtml+=`
+            <div style="font-size:12px;padding:10px 0;border-bottom:1px solid #eee;">
+                <i class="fas fa-check-circle" style="color:#4caf50;margin-right:5px;"></i>
+                New ${subject} results for ${cls}
+            </div>`;
+        }
+    }
 
-for(let cls in results){
-for(let subject in results[cls]){
-
-count++;
-
-reportHtml+=`
-<div class="report-item">
-<div class="report-icon"><i class="fas fa-file-csv"></i></div>
-<div>
-<h4 style="font-size:13px;">${subject} Uploaded</h4>
-<p style="font-size:11px;color:#666;">Class: ${cls}</p>
-</div>
-</div>`;
-
-notifHtml+=`
-<div style="font-size:12px;padding:10px 0;border-bottom:1px solid #eee;">
-<i class="fas fa-check-circle" style="color:#4caf50;margin-right:5px;"></i>
-New ${subject} results for ${cls}
-</div>`;
-}
-}
-
-if(count>0){
-reportsBox.innerHTML=reportHtml;
-notifList.innerHTML=notifHtml;
-
-if(count>lastRead){
-badge.innerText=count-lastRead;
-badge.style.display="flex";
-}
-}
+    if(count>0){
+        reportsBox.innerHTML=reportHtml;
+        notifList.innerHTML=notifHtml;
+        if(count>lastRead){
+            badge.innerText=count-lastRead;
+            badge.style.display="flex";
+        }
+    }
 }
 
 function toggleNotifs(){
+    const panel=document.getElementById('notifPanel');
+    const badge=document.getElementById('notifBadge');
 
-const panel=document.getElementById('notifPanel');
-const badge=document.getElementById('notifBadge');
-
-if(panel.style.display==='block'){
-panel.style.display='none';
-}else{
-panel.style.display='block';
-badge.style.display="none";
-
-const results=JSON.parse(localStorage.getItem('bis_results'))||{};
-let count=0;
-
-for(let cls in results){
-for(let subject in results[cls]) count++;
-}
-
-localStorage.setItem('bis_last_read_count',count);
-}
-}
-
-function refreshStats(){
-const users=JSON.parse(localStorage.getItem('bis_users'))||[];
-
-document.getElementById('studentCount').innerText=
-users.filter(u=>u.role==='student').length;
-
-document.getElementById('teacherCount').innerText=
-users.filter(u=>u.role==='teacher').length;
+    if(panel.style.display==='block'){
+        panel.style.display='none';
+    }else{
+        panel.style.display='block';
+        badge.style.display="none";
+        const results=JSON.parse(localStorage.getItem('bis_results'))||{};
+        let count=0;
+        for(let cls in results){
+            for(let subject in results[cls]) count++;
+        }
+        localStorage.setItem('bis_last_read_count',count);
+    }
 }
 
 function toggleSettings(show){
-document.getElementById('settingsModal').style.display=show?'flex':'none';
+    document.getElementById('settingsModal').style.display=show?'flex':'none';
 }
 
 function updateSecurity(){
+    const newName=document.getElementById('editPrincipalName').value;
+    let users=JSON.parse(localStorage.getItem('bis_users'))||[];
+    let currentUser=JSON.parse(localStorage.getItem('currentUser'));
+    const idx=users.findIndex(u=>u.username===currentUser.username);
 
-const newName=document.getElementById('editPrincipalName').value;
-
-let users=JSON.parse(localStorage.getItem('bis_users'))||[];
-let currentUser=JSON.parse(localStorage.getItem('currentUser'));
-
-const idx=users.findIndex(u=>u.username===currentUser.username);
-
-if(idx!==-1){
-
-users[idx].fullName=newName;
-currentUser.fullName=newName;
-
-localStorage.setItem('bis_users',JSON.stringify(users));
-localStorage.setItem('currentUser',JSON.stringify(currentUser));
-
-location.reload();
-}
+    if(idx!==-1){
+        users[idx].fullName=newName;
+        currentUser.fullName=newName;
+        localStorage.setItem('bis_users',JSON.stringify(users));
+        localStorage.setItem('currentUser',JSON.stringify(currentUser));
+        location.reload();
+    }
 }
 
 function logout(){
-localStorage.removeItem('currentUser');
-window.location.href='index.html';
+    localStorage.removeItem('currentUser');
+    window.location.href='index.html';
 }
 
-/* ✅ ANNOUNCEMENT ENGINE */
-
 function openAnnouncementModal(){
-document.getElementById('announcementModal').style.display='flex';
+    document.getElementById('announcementModal').style.display='flex';
 }
 
 function closeAnnouncementModal(){
-document.getElementById('announcementModal').style.display='none';
+    document.getElementById('announcementModal').style.display='none';
 }
+</script>
 
-function postAnnouncement(){
+<script type="module">
+/* --- FIREBASE ENGINE --- */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { 
+    getFirestore, 
+    collection, 
+    addDoc, 
+    serverTimestamp,
+    getDocs 
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const text=document.getElementById('announcementText').value.trim();
+const firebaseConfig = {
+  apiKey: "AIzaSyBIQog_gsN6U-2JXwpv8CBSMLuP92W6a7Q",
+  authDomain: "school-management-system-2f7de.firebaseapp.com",
+  projectId: "school-management-system-2f7de",
+  storageBucket: "school-management-system-2f7de.firebasestorage.app",
+  messagingSenderId: "518987437886",
+  appId: "1:518987437886:web:3d451457c4a6457e007e6f",
+  measurementId: "G-KW2273D3C2"
+};
 
-if(!text){
-alert("Announcement cannot be empty.");
-return;
-}
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-const announcements=
-JSON.parse(localStorage.getItem('bis_announcements'))||[];
-announcements.push({
-id:Date.now(),
-message:text,
-date:new Date().toLocaleString(),
-postedBy:"Principal",
-createdAt: Date.now() // ⭐ VERY IMPORTANT
-});
+/* 📊 DASHBOARD STATS: FETCHING FROM 'users' COLLECTION */
+window.refreshStats = async function(){
+    try {
+        const snapshot = await getDocs(collection(db, "users")); 
+        let students = 0;
+        let teachers = 0;
 
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            // Check the role field in each user document
+            if(data.role === "student") students++;
+            else if(data.role === "teacher") teachers++;
+        });
 
-localStorage.setItem('bis_announcements',JSON.stringify(announcements));
+        document.getElementById("studentCount").innerText = students;
+        document.getElementById("teacherCount").innerText = teachers;
+        console.log("Stats loaded: ", {students, teachers});
 
-document.getElementById('announcementText').value="";
-closeAnnouncementModal();
+    } catch(err) {
+        console.error("Firebase Count Error:", err);
+    }
+};
 
-alert("Announcement posted successfully!");
-}
+/* 📣 POST ANNOUNCEMENT TO FIREBASE */
+window.postAnnouncement = async function () {
+    const text = document.getElementById('announcementText').value.trim();
+    if (!text) {
+        alert("Announcement cannot be empty.");
+        return;
+    }
 
+    try {
+        await addDoc(collection(db, "announcements"), {
+            message: text,
+            postedBy: "Principal",
+            createdAt: serverTimestamp()
+        });
+
+        document.getElementById('announcementText').value = "";
+        closeAnnouncementModal();
+        alert("Announcement sent successfully! ✅");
+
+    } catch (err) {
+        alert("Failed to send announcement ❌");
+        console.error(err);
+    }
+};
 </script>
 </body>
 </html>

@@ -1,218 +1,380 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Academic Reports - BIS</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        :root {
-            --chocolate: #3E2723;
-            --gold: #FFB300;
-            --cream: #FFF8E1;
-            --white: #ffffff;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background-color: #fcfaf5; padding: 20px; }
+<title>Academic Reports - BIS</title>
 
-        .header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--chocolate); }
-        .back-btn { color: var(--chocolate); text-decoration: none; font-size: 20px; }
-        .breadcrumb { margin-bottom: 15px; font-size: 13px; color: #666; font-weight: 500; }
-        .breadcrumb span { cursor: pointer; color: var(--gold); }
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-        /* Folder Grid */
-        .folder-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .folder {
-            background: white; padding: 25px 15px; border-radius: 15px;
-            display: flex; flex-direction: column; align-items: center;
-            gap: 10px; cursor: pointer; border: 1px solid #eee;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: 0.2s;
-        }
-        .folder:active { transform: scale(0.95); }
-        .folder i { font-size: 45px; color: var(--gold); }
-        .folder span { color: var(--chocolate); font-weight: 700; font-size: 15px; }
+<style>
+:root{
+--chocolate:#3E2723;
+--gold:#FFB300;
+--cream:#FFF8E1;
+}
 
-        /* Student List */
-        .student-list { display: none; background: white; border-radius: 15px; padding: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .student-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 18px; border-bottom: 1px solid #eee; cursor: pointer;
-        }
-        .student-item:last-child { border-bottom: none; }
-        .student-item span { color: var(--chocolate); font-weight: 600; }
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif;}
+body{background:#fcfaf5;padding:20px;}
 
-        /* Modal / Report Card */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center;
-            z-index: 3000; padding: 15px;
-        }
-        .report-card {
-            background: white; width: 100%; max-width: 600px; border-radius: 20px;
-            overflow: hidden; animation: slideUp 0.3s ease-out;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
-        .report-header { background: var(--chocolate); padding: 20px; text-align: center; color: white; }
-        .report-header h3 { color: var(--gold); font-size: 14px; margin-bottom: 5px; }
-        
-        .report-body { padding: 20px; }
-        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .info-item { font-size: 12px; color: #555; border-bottom: 1px solid #f0f0f0; padding-bottom: 5px; }
-        .info-item b { color: var(--chocolate); }
+.header{
+display:flex;
+gap:15px;
+align-items:center;
+margin-bottom:20px;
+color:var(--chocolate);
+}
 
-        table.result-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 10px; }
-        table.result-table th { background: #f8f8f8; color: var(--chocolate); border: 1px solid #ddd; padding: 8px; }
-        table.result-table td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+.folder-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:15px;
+}
 
-        .print-footer { padding: 15px; display: flex; gap: 10px; }
-        .btn { flex: 1; padding: 14px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
-        .btn-print { background: var(--gold); color: var(--chocolate); }
-        .btn-close { background: #eee; color: #333; }
+.folder{
+background:white;
+padding:25px;
+border-radius:15px;
+text-align:center;
+cursor:pointer;
+box-shadow:0 4px 6px rgba(0,0,0,.05);
+}
 
-        @keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.folder i{
+font-size:45px;
+color:var(--gold);
+}
 
-        @media print {
-            body * { visibility: hidden; }
-            .report-card, .report-card * { visibility: visible; }
-            .report-card { position: fixed; left: 0; top: 0; width: 100%; box-shadow: none; border: none; }
-            .print-footer { display: none; }
-        }
-    </style>
+.student-list{
+display:none;
+background:white;
+border-radius:15px;
+padding:5px;
+}
+
+.student-item{
+display:flex;
+justify-content:space-between;
+padding:18px;
+border-bottom:1px solid #eee;
+cursor:pointer;
+}
+
+.modal-overlay{
+position:fixed;
+top:0;left:0;
+width:100%;height:100%;
+background:rgba(0,0,0,.85);
+display:none;
+justify-content:center;
+align-items:center;
+padding:15px;
+}
+
+.report-card{
+background:white;
+width:100%;
+max-width:600px;
+border-radius:20px;
+overflow:hidden;
+}
+
+.report-header{
+background:var(--chocolate);
+color:white;
+padding:20px;
+text-align:center;
+}
+
+.report-body{
+padding:20px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+font-size:12px;
+}
+
+th,td{
+border:1px solid #ddd;
+padding:8px;
+text-align:center;
+}
+
+.print-footer{
+display:flex;
+gap:10px;
+padding:15px;
+}
+
+.btn{
+flex:1;
+padding:14px;
+border:none;
+border-radius:10px;
+font-weight:bold;
+cursor:pointer;
+}
+
+.btn-print{
+background:var(--gold);
+}
+
+.btn-close{
+background:#eee;
+}
+
+</style>
 </head>
+
 <body>
 
-    <div class="header">
-        <a href="principal_dash.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
-        <h2>Reports Vault</h2>
-    </div>
+<div class="header">
+<a href="principal_dash.html">
+<i class="fas fa-arrow-left"></i>
+</a>
+<h2>Reports Vault</h2>
+</div>
 
-    <div id="breadcrumb" class="breadcrumb">
-        <span onclick="showClasses()">All Classes</span> <span id="pathClass"></span>
-    </div>
+<!-- TEACHERS -->
+<div id="teacherArea" class="folder-grid"></div>
 
-    <div id="folderArea" class="folder-grid"></div>
+<!-- CLASSES -->
+<div id="classArea" class="folder-grid" style="display:none;"></div>
 
-    <div id="studentListArea" class="student-list"></div>
+<!-- STUDENTS -->
+<div id="studentList" class="student-list"></div>
 
-    <div class="modal-overlay" id="resultModal">
-        <div class="report-card">
-            <div class="report-header">
-                <h3>BENIAIAH INTERNATIONAL SCHOOL</h3>
-                <h2 style="font-size: 16px;">STUDENT ACADEMIC RECORD</h2>
-            </div>
-            <div class="report-body">
-                <div class="info-grid">
-                    <div class="info-item">NAME: <b id="modalName">...</b></div>
-                    <div class="info-item">CLASS: <b id="modalClass">...</b></div>
-                    <div class="info-item">TERM: <b id="modalTerm">...</b></div>
-                    <div class="info-item">YEAR: <b id="modalYear">...</b></div>
-                </div>
 
-                <table class="result-table">
-                    <thead>
-                        <tr>
-                            <th style="text-align:left">SUBJECT</th>
-                            <th>CA1</th>
-                            <th>CA2</th>
-                            <th>CA3</th>
-                            <th>EXAM</th>
-                            <th style="background:var(--cream)">TOTAL</th>
-                        </tr>
-                    </thead>
-                    <tbody id="modalTableBody"></tbody>
-                </table>
-            </div>
-            <div class="print-footer">
-                <button class="btn btn-close" onclick="closeModal()">Close</button>
-                <button id="btnPrint" class="btn btn-print" onclick="window.print()">Print Result</button>
-            </div>
-        </div>
-    </div>
+<!-- RESULT MODAL -->
+<div class="modal-overlay" id="modal">
 
-    <script>
-        // Data Sources
-        const results = JSON.parse(localStorage.getItem('bis_results')) || {};
-        const users = JSON.parse(localStorage.getItem('bis_users')) || [];
+<div class="report-card">
 
-        function showClasses() {
-            document.getElementById('pathClass').innerText = "";
-            document.getElementById('studentListArea').style.display = 'none';
-            const folderArea = document.getElementById('folderArea');
-            folderArea.style.display = 'grid';
+<div class="report-header">
+<h3>BENAIAH INTERNATIONAL SCHOOL</h3>
+<h2>STUDENT ACADEMIC RECORD</h2>
+</div>
 
-            const classes = ["JSS1", "JSS2", "JSS3", "SS1", "SS2", "SS3"];
-            folderArea.innerHTML = classes.map(c => `
-                <div class="folder" onclick="showStudents('${c}')">
-                    <i class="fas fa-folder"></i>
-                    <span>${c}</span>
-                </div>
-            `).join('');
-        }
+<div class="report-body">
 
-        function showStudents(cls) {
-            document.getElementById('folderArea').style.display = 'none';
-            document.getElementById('pathClass').innerHTML = ` > <span>${cls}</span>`;
-            const listArea = document.getElementById('studentListArea');
-            listArea.style.display = 'block';
+<p><b>Name:</b> <span id="rName"></span></p>
+<p><b>Class:</b> <span id="rClass"></span></p>
 
-            const students = users.filter(u => u.role === 'student' && u.studentClass === cls);
-            
-            if(students.length === 0) {
-                listArea.innerHTML = "<p style='padding:30px; text-align:center; color:#999;'>No students registered in this class.</p>";
-                return;
-            }
+<table>
+<thead>
+<tr>
+<th>Subject</th>
+<th>CA1</th>
+<th>CA2</th>
+<th>CA3</th>
+<th>Exam</th>
+<th>Total</th>
+<th>Grade</th>
+</tr>
+</thead>
 
-            listArea.innerHTML = students.map(s => `
-                <div class="student-item" onclick="openReportModal('${s.username}', '${s.fullName}', '${cls}')">
-                    <span><i class="fas fa-user-circle" style="margin-right:12px; color:var(--gold);"></i> ${s.fullName}</span>
-                    <i class="fas fa-chevron-right" style="color:#ddd;"></i>
-                </div>
-            `).join('');
-        }
+<tbody id="resultBody"></tbody>
 
-        function openReportModal(studentId, fullName, cls) {
-            document.getElementById('modalName').innerText = fullName.toUpperCase();
-            document.getElementById('modalClass').innerText = cls;
+</table>
 
-            const settings = JSON.parse(localStorage.getItem('bis_settings')) || { term: 'N/A', year: 'N/A' };
-            document.getElementById('modalTerm').innerText = settings.term;
-            document.getElementById('modalYear').innerText = settings.year;
+</div>
 
-            const tbody = document.getElementById('modalTableBody');
-            tbody.innerHTML = "";
-            
-            let foundAny = false;
-            const classData = results[cls] || {};
+<div class="print-footer">
+<button class="btn btn-close" onclick="closeModal()">Close</button>
+<button class="btn btn-print" onclick="window.print()">Print</button>
+</div>
 
-            // CRITICAL FIX: Loop through all subjects to find this student's scores
-            for (let subject in classData) {
-                const score = classData[subject][studentId];
-                if (score) {
-                    foundAny = true;
-                    tbody.innerHTML += `
-                        <tr>
-                            <td style="text-align:left; font-weight:600;">${subject}</td>
-                            <td>${score.ca1 || 0}</td>
-                            <td>${score.ca2 || 0}</td>
-                            <td>${score.ca3 || 0}</td>
-                            <td>${score.exam || 0}</td>
-                            <td style="font-weight:bold; background:#fff8e1;">${score.total || 0}</td>
-                        </tr>
-                    `;
-                }
-            }
+</div>
+</div>
 
-            if (!foundAny) {
-                tbody.innerHTML = "<tr><td colspan='6' style='padding:30px; color:#999;'>No results uploaded for this student yet.</td></tr>";
-            }
 
-            document.getElementById('resultModal').style.display = 'flex';
-        }
 
-        function closeModal() { document.getElementById('resultModal').style.display = 'none'; }
+<script type="module">
 
-        window.onload = showClasses;
-    </script>
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+getFirestore,
+collection,
+getDocs,
+query,
+where
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+
+// 🔥 Firebase Config
+const firebaseConfig = {
+apiKey: "AIzaSyBIQog_gsN6U-2JXwpv8CBSMLuP92W6a7Q",
+authDomain: "school-management-system-2f7de.firebaseapp.com",
+projectId: "school-management-system-2f7de",
+storageBucket: "school-management-system-2f7de.appspot.com",
+messagingSenderId: "518987437886",
+appId: "1:518987437886:web:3d451457c4a6457e007e6f"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+
+// UI refs
+const teacherArea = document.getElementById("teacherArea");
+const classArea = document.getElementById("classArea");
+const studentList = document.getElementById("studentList");
+
+
+// LOAD TEACHERS
+async function loadTeachers(){
+
+teacherArea.innerHTML = "Loading teachers...";
+
+const q = query(
+collection(db,"users"),
+where("role","==","teacher")
+);
+
+const snap = await getDocs(q);
+
+let html="";
+
+snap.forEach(doc=>{
+const t = doc.data();
+
+html+=`
+<div class="folder" onclick="showClasses('${doc.id}','${t.fullName}')">
+<i class="fas fa-chalkboard-teacher"></i>
+<p>${t.fullName}</p>
+</div>
+`;
+});
+
+teacherArea.innerHTML = html;
+
+}
+
+
+// SHOW CLASSES
+window.showClasses = function(teacherId, teacherName){
+
+teacherArea.style.display="none";
+classArea.style.display="grid";
+
+const classes = ["JSS1","JSS2","JSS3","SSS1","SSS2","SSS3"];
+
+classArea.innerHTML = classes.map(c=>`
+<div class="folder" onclick="showStudents('${c}')">
+<i class="fas fa-folder"></i>
+<p>${c}</p>
+</div>
+`).join('');
+
+}
+
+
+
+// SHOW STUDENTS
+window.showStudents = async function(cls){
+
+classArea.style.display="none";
+studentList.style.display="block";
+studentList.innerHTML="Loading students...";
+
+const q = query(
+collection(db,"users"),
+where("role","==","student"),
+where("class","==",cls)
+);
+
+const snap = await getDocs(q);
+
+if(snap.empty){
+studentList.innerHTML="<p style='padding:20px'>No students</p>";
+return;
+}
+
+let html="";
+
+snap.forEach(doc=>{
+
+const s = doc.data();
+
+html+=`
+<div class="student-item"
+onclick="openResult('${doc.id}','${s.fullName}','${cls}')">
+<span>${s.fullName}</span>
+<i class="fas fa-chevron-right"></i>
+</div>
+`;
+});
+
+studentList.innerHTML = html;
+
+}
+
+
+
+// OPEN RESULT
+window.openResult = async function(studentId, name, cls){
+
+document.getElementById("modal").style.display="flex";
+document.getElementById("rName").innerText = name;
+document.getElementById("rClass").innerText = cls;
+
+const resultBody = document.getElementById("resultBody");
+
+resultBody.innerHTML="Loading...";
+
+const q = query(
+collection(db,"results"),
+where("studentId","==",studentId)
+);
+
+const snap = await getDocs(q);
+
+if(snap.empty){
+resultBody.innerHTML="<tr><td colspan='7'>No results found</td></tr>";
+return;
+}
+
+let rows="";
+
+snap.forEach(doc=>{
+
+const r = doc.data();
+
+rows+=`
+<tr>
+<td>${r.subject}</td>
+<td>${r.ca1}</td>
+<td>${r.ca2}</td>
+<td>${r.ca3}</td>
+<td>${r.exam}</td>
+<td>${r.total}</td>
+<td>${r.grade}</td>
+</tr>
+`;
+
+});
+
+resultBody.innerHTML = rows;
+
+}
+
+
+
+window.closeModal = function(){
+document.getElementById("modal").style.display="none";
+}
+
+
+loadTeachers();
+
+</script>
+
 </body>
 </html>

@@ -1,252 +1,581 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student List - BIS</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        :root {
-            --chocolate: #3E2723;
-            --cream: #FFF8E1;
-            --gold: #FFB300;
-            --white: #ffffff;
-            --red: #c62828;
-            --green: #2e7d32;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background-color: #fcfaf5; padding: 15px; }
+<title>Student List - BIS</title>
 
-        .header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--chocolate); }
-        .back-btn { font-size: 24px; color: var(--chocolate); text-decoration: none; }
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-        .controls { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .search-box, .filter-box { padding: 12px; border-radius: 10px; border: 1px solid #ddd; outline: none; }
+<style>
 
-        .student-card {
-            background: var(--white); padding: 12px; border-radius: 12px;
-            margin-bottom: 10px; display: flex; align-items: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05); border-left: 5px solid var(--chocolate);
-            cursor: pointer;
-        }
+:root{
+--chocolate:#3E2723;
+--cream:#FFF8E1;
+--gold:#FFB300;
+--white:#ffffff;
+--red:#c62828;
+--green:#2e7d32;
+}
 
-        .stu-img-mini { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; margin-right: 12px; border: 1px solid #eee; }
-        .stu-details { flex-grow: 1; }
-        .stu-details h4 { color: var(--chocolate); font-size: 15px; }
-        .stu-details p { font-size: 11px; color: #777; }
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Segoe UI',sans-serif;
+}
 
-        .delete-btn { color: var(--red); padding: 10px; font-size: 18px; cursor: pointer; }
+body{
+background:#fcfaf5;
+padding:15px;
+}
 
-        /* Modal Styling */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center;
-            z-index: 1000; padding: 20px;
-        }
-        .modal-content {
-            background: white; width: 100%; max-width: 400px; border-radius: 25px;
-            padding: 20px; position: relative; overflow-y: auto; max-height: 90vh;
-        }
-        .close-modal { position: absolute; top: 15px; right: 20px; font-size: 24px; color: #999; cursor: pointer; }
-        
-        .modal-header { text-align: center; margin-bottom: 20px; }
-        .modal-img { width: 110px; height: 110px; border-radius: 50%; object-fit: cover; border: 4px solid var(--cream); }
-        
-        .detail-row { 
-            display: flex; justify-content: space-between; align-items: center; padding: 10px 0; 
-            border-bottom: 1px solid #f0f0f0; font-size: 14px; 
-        }
-        .detail-row span:first-child { color: #888; font-weight: 500; }
-        
-        /* Edit Inputs */
-        .edit-input {
-            border: 1px solid #ddd; padding: 5px; border-radius: 5px;
-            width: 60%; text-align: right; color: var(--chocolate); font-weight: 600;
-        }
+/* Header */
+.header{
+display:flex;
+align-items:center;
+gap:15px;
+margin-bottom:20px;
+color:var(--chocolate);
+}
 
-        .action-btn {
-            display: block; width: 100%; padding: 12px; border-radius: 10px;
-            text-align: center; text-decoration: none; font-weight: bold; margin-top: 20px;
-            cursor: pointer; border: none; font-size: 16px;
-        }
-        .edit-mode-btn { background: var(--gold); color: white; }
-        .save-mode-btn { background: var(--green); color: white; }
+.back-btn{
+font-size:24px;
+color:var(--chocolate);
+text-decoration:none;
+}
 
-        .empty-state { text-align: center; margin-top: 50px; color: #888; }
-    </style>
+/* Controls */
+.controls{
+display:grid;
+grid-template-columns:2fr 1fr;
+gap:10px;
+margin-bottom:20px;
+}
+
+.search-box,.filter-box{
+padding:12px;
+border-radius:10px;
+border:1px solid #ddd;
+outline:none;
+}
+
+/* Student Card */
+.student-card{
+background:var(--white);
+padding:12px;
+border-radius:12px;
+margin-bottom:10px;
+display:flex;
+align-items:center;
+box-shadow:0 2px 8px rgba(0,0,0,.05);
+border-left:5px solid var(--chocolate);
+cursor:pointer;
+}
+
+.stu-img-mini{
+width:45px;
+height:45px;
+border-radius:50%;
+object-fit:cover;
+margin-right:12px;
+border:1px solid #eee;
+}
+
+.stu-details{
+flex-grow:1;
+}
+
+.stu-details h4{
+color:var(--chocolate);
+font-size:15px;
+}
+
+.stu-details p{
+font-size:11px;
+color:#777;
+}
+
+.delete-btn{
+color:var(--red);
+padding:10px;
+font-size:18px;
+cursor:pointer;
+}
+
+/* Modal */
+
+.modal-overlay{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,.8);
+display:none;
+justify-content:center;
+align-items:center;
+z-index:1000;
+padding:20px;
+}
+
+.modal-content{
+background:white;
+width:100%;
+max-width:400px;
+border-radius:25px;
+padding:20px;
+position:relative;
+overflow-y:auto;
+max-height:90vh;
+}
+
+.close-modal{
+position:absolute;
+top:15px;
+right:20px;
+font-size:24px;
+color:#999;
+cursor:pointer;
+}
+
+.modal-header{
+text-align:center;
+margin-bottom:20px;
+}
+
+.modal-img{
+width:110px;
+height:110px;
+border-radius:50%;
+object-fit:cover;
+border:4px solid var(--cream);
+}
+
+.detail-row{
+display:flex;
+justify-content:space-between;
+padding:10px 0;
+border-bottom:1px solid #f0f0f0;
+font-size:14px;
+}
+
+.edit-input{
+border:1px solid #ddd;
+padding:5px;
+border-radius:5px;
+width:60%;
+text-align:right;
+color:var(--chocolate);
+font-weight:600;
+}
+
+.action-btn{
+display:block;
+width:100%;
+padding:12px;
+border-radius:10px;
+text-align:center;
+font-weight:bold;
+margin-top:20px;
+cursor:pointer;
+border:none;
+font-size:16px;
+}
+
+.edit-mode-btn{
+background:var(--gold);
+color:white;
+}
+
+.save-mode-btn{
+background:var(--green);
+color:white;
+}
+
+.empty-state{
+text-align:center;
+margin-top:50px;
+color:#888;
+}
+
+</style>
 </head>
+
 <body>
 
-    <div class="header">
-        <a href="principal_dash.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
-        <h2>Student List</h2>
-    </div>
+<div class="header">
+<a href="principal_dash.html" class="back-btn">
+<i class="fas fa-arrow-left"></i>
+</a>
+<h2>Student List</h2>
+</div>
 
-    <div class="controls">
-        <input type="text" id="searchInput" class="search-box" placeholder="Search name..." onkeyup="filterStudents()">
-        <select id="classFilter" class="filter-box" onchange="filterStudents()">
-            <option value="All">All</option>
-            <option value="JSS1">JSS 1</option><option value="JSS2">JSS 2</option><option value="JSS3">JSS 3</option>
-            <option value="SS1">SS 1</option><option value="SS2">SS 2</option><option value="SS3">SS 3</option>
-        </select>
-    </div>
+<div class="controls">
 
-    <div id="studentContainer"></div>
+<input
+type="text"
+id="searchInput"
+class="search-box"
+placeholder="Search name..."
+onkeyup="filterStudents()">
 
-    <div class="modal-overlay" id="modalOverlay">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeModal()">&times;</span>
-            
-            <div class="modal-header">
-                <img src="" id="modalImg" class="modal-img">
-                <h2 id="modalName" style="color: var(--chocolate); margin-top: 10px;">Name</h2>
-                <p id="modalID" style="color: var(--gold); font-weight: bold; font-size: 13px;">ID: ---</p>
-            </div>
+<select
+id="classFilter"
+class="filter-box"
+onchange="filterStudents()">
 
-            <div class="modal-body" id="modalBody">
-                </div>
+<option value="All">All</option>
+<option value="JSS1">JSS1</option>
+<option value="JSS2">JSS2</option>
+<option value="JSS3">JSS3</option>
+<option value="SSS1">SSS1</option>
+<option value="SSS2">SSS2</option>
+<option value="SSS3">SSS3</option>
 
-            <button id="modalActionBtn" class="action-btn edit-mode-btn" onclick="toggleEdit()">
-                <i class="fas fa-edit"></i> Edit Student Details
-            </button>
-        </div>
-    </div>
+</select>
+</div>
 
-    <script>
-        let currentEditingId = null;
-        let isEditMode = false;
+<div id="studentContainer">
+<p style="text-align:center;color:#888;">
+Loading students from database...
+</p>
+</div>
 
-        function loadStudents() {
-            const container = document.getElementById('studentContainer');
-            const allUsers = JSON.parse(localStorage.getItem('bis_users')) || [];
-            const students = allUsers.filter(u => u.role === 'student');
 
-            if (students.length === 0) {
-                container.innerHTML = `<div class="empty-state"><p>No students registered.</p></div>`;
-                return;
-            }
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+<div class="modal-content">
 
-            students.sort((a, b) => a.fullName.localeCompare(b.fullName));
+<span class="close-modal" onclick="closeModal()">&times;</span>
 
-            container.innerHTML = students.map(s => `
-                <div class="student-card" data-class="${s.studentClass}" data-name="${s.fullName.toLowerCase()}">
-                    <img src="${s.photo || 'https://via.placeholder.com/150'}" class="stu-img-mini" onclick="viewStudent('${s.username}')">
-                    <div class="stu-details" onclick="viewStudent('${s.username}')">
-                        <h4>${s.fullName}</h4>
-                        <p>${s.username} | ${s.studentClass}</p>
-                    </div>
-                    <div class="delete-btn" onclick="deleteStudent(event, '${s.username}')">
-                        <i class="fas fa-trash-alt"></i>
-                    </div>
-                </div>
-            `).join('');
-        }
+<div class="modal-header">
+<img src="" id="modalImg" class="modal-img">
+<h2 id="modalName"></h2>
+<p id="modalID" style="color:var(--gold);font-weight:bold;"></p>
+</div>
 
-        function viewStudent(id) {
-            const allUsers = JSON.parse(localStorage.getItem('bis_users')) || [];
-            const s = allUsers.find(u => u.username === id);
-            if (!s) return;
+<div id="modalBody"></div>
 
-            currentEditingId = id;
-            isEditMode = false;
-            
-            document.getElementById('modalImg').src = s.photo || 'https://via.placeholder.com/150';
-            document.getElementById('modalName').innerText = s.fullName;
-            document.getElementById('modalID').innerText = s.username;
-            
-            renderDetails(s);
+<button id="modalActionBtn"
+class="action-btn edit-mode-btn"
+onclick="toggleEdit()">
 
-            const btn = document.getElementById('modalActionBtn');
-            btn.innerHTML = '<i class="fas fa-edit"></i> Edit Student Details';
-            btn.className = 'action-btn edit-mode-btn';
+<i class="fas fa-edit"></i>
+Edit Student Details
 
-            document.getElementById('modalOverlay').style.display = 'flex';
-        }
+</button>
 
-        function renderDetails(s) {
-            const fields = [
-                { label: 'Full Name', key: 'fullName', val: s.fullName },
-                { label: 'Class', key: 'studentClass', val: s.studentClass },
-                { label: 'Gender', key: 'gender', val: s.gender },
-                { label: 'Date of Birth', key: 'dob', val: s.dob },
-                { label: 'Guardian', key: 'parentName', val: s.parentName },
-                { label: 'Phone', key: 'parentPhone', val: s.parentPhone },
-                { label: 'Address', key: 'address', val: s.address }
-            ];
+</div>
+</div>
 
-            const html = fields.map(f => `
-                <div class="detail-row">
-                    <span>${f.label}</span>
-                    ${isEditMode ? 
-                        `<input type="text" class="edit-input" id="edit_${f.key}" value="${f.val || ''}">` : 
-                        `<span style="color: var(--chocolate); font-weight: 600;">${f.val || 'Not Set'}</span>`
-                    }
-                </div>
-            `).join('');
-            
-            document.getElementById('modalBody').innerHTML = html;
-        }
 
-        function toggleEdit() {
-            const allUsers = JSON.parse(localStorage.getItem('bis_users')) || [];
-            const studentIdx = allUsers.findIndex(u => u.username === currentEditingId);
-            const s = allUsers[studentIdx];
 
-            if (!isEditMode) {
-                // Switch to Edit Mode
-                isEditMode = true;
-                renderDetails(s);
-                const btn = document.getElementById('modalActionBtn');
-                btn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
-                btn.className = 'action-btn save-mode-btn';
-            } else {
-                // Save Logic
-                s.fullName = document.getElementById('edit_fullName').value;
-                s.studentClass = document.getElementById('edit_studentClass').value;
-                s.gender = document.getElementById('edit_gender').value;
-                s.dob = document.getElementById('edit_dob').value;
-                s.parentName = document.getElementById('edit_parentName').value;
-                s.parentPhone = document.getElementById('edit_parentPhone').value;
-                s.address = document.getElementById('edit_address').value;
+<script type="module">
 
-                allUsers[studentIdx] = s;
-                localStorage.setItem('bis_users', JSON.stringify(allUsers));
-                
-                alert("Details Updated!");
-                isEditMode = false;
-                loadStudents(); // Refresh background list
-                viewStudent(currentEditingId); // Refresh modal view
-            }
-        }
+/* FIREBASE */
 
-        function closeModal() {
-            document.getElementById('modalOverlay').style.display = 'none';
-        }
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
-        function deleteStudent(event, id) {
-            event.stopPropagation();
-            if (confirm("Permanently delete this student?")) {
-                let allUsers = JSON.parse(localStorage.getItem('bis_users')) || [];
-                allUsers = allUsers.filter(u => u.username !== id);
-                localStorage.setItem('bis_users', JSON.stringify(allUsers));
-                loadStudents();
-            }
-        }
+import {
+getFirestore,
+collection,
+getDocs,
+doc,
+updateDoc,
+deleteDoc,
+query,
+where
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        function filterStudents() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
-            const classFilter = document.getElementById('classFilter').value;
-            const cards = document.querySelectorAll('.student-card');
 
-            cards.forEach(card => {
-                const name = card.getAttribute('data-name');
-                const sClass = card.getAttribute('data-class');
-                card.style.display = (name.includes(query) && (classFilter === "All" || sClass === classFilter)) ? "flex" : "none";
-            });
-        }
+const firebaseConfig = {
+apiKey:"AIzaSyBIQog_gsN6U-2JXwpv8CBSMLuP92W6a7Q",
+authDomain:"school-management-system-2f7de.firebaseapp.com",
+projectId:"school-management-system-2f7de",
+storageBucket:"school-management-system-2f7de.appspot.com",
+messagingSenderId:"518987437886",
+appId:"1:518987437886:web:3d451457c4a6457e007e6f"
+};
 
-        window.onload = loadStudents;
-    </script>
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+
+let allStudents=[];
+let currentEditingDocId=null;
+let isEditMode=false;
+
+
+/* LOAD STUDENTS */
+
+async function loadStudents(){
+
+const container=document.getElementById("studentContainer");
+
+try{
+
+const q=query(
+collection(db,"users"),
+where("role","==","student")
+);
+
+const snap=await getDocs(q);
+
+allStudents=[];
+
+snap.forEach(d=>{
+
+const data=d.data();
+
+/* 🔥 CLASS FIX */
+const detectedClass =
+data.class || data.studentClass || "Not Assigned";
+
+allStudents.push({
+id:d.id,
+...data,
+detectedClass
+});
+
+});
+
+if(allStudents.length===0){
+
+container.innerHTML=
+`<div class="empty-state">
+No students found.
+</div>`;
+return;
+}
+
+/* Sort */
+allStudents.sort((a,b)=>
+(a.fullName||"").localeCompare(b.fullName||"")
+);
+
+renderList(allStudents);
+
+}catch(err){
+
+container.innerHTML=
+`<p style="color:red;text-align:center;">
+Failed to load students
+</p>`;
+
+}
+
+}
+
+
+/* RENDER */
+
+function renderList(students){
+
+const container=document.getElementById("studentContainer");
+
+container.innerHTML=students.map(s=>`
+
+<div class="student-card"
+data-class="${s.detectedClass}"
+data-name="${(s.fullName||"").toLowerCase()}">
+
+<img
+src="${s.photo || 'https://via.placeholder.com/150'}"
+class="stu-img-mini"
+onclick="window.viewStudent('${s.id}')">
+
+<div class="stu-details"
+onclick="window.viewStudent('${s.id}')">
+
+<h4>${s.fullName || "Unnamed Student"}</h4>
+
+<p>
+${s.username || "No ID"}
+|
+${s.detectedClass}
+</p>
+
+</div>
+
+<div class="delete-btn"
+onclick="window.deleteStudent(event,'${s.id}')">
+
+<i class="fas fa-trash-alt"></i>
+
+</div>
+</div>
+
+`).join("");
+
+}
+
+
+
+/* VIEW STUDENT */
+
+window.viewStudent=function(docId){
+
+const s=allStudents.find(u=>u.id===docId);
+if(!s) return;
+
+currentEditingDocId=docId;
+isEditMode=false;
+
+modalImg.src=s.photo || 'https://via.placeholder.com/150';
+modalName.innerText=s.fullName;
+modalID.innerText=s.username;
+
+renderDetails(s);
+
+modalOverlay.style.display="flex";
+
+};
+
+
+
+function renderDetails(s){
+
+const fields=[
+
+['Full Name','fullName'],
+['Class','class'],
+['Gender','gender'],
+['DOB','dob'],
+['Guardian','parentName'],
+['Phone','parentPhone'],
+['Address','address']
+
+];
+
+modalBody.innerHTML=fields.map(f=>`
+
+<div class="detail-row">
+
+<span>${f[0]}</span>
+
+${isEditMode ?
+
+`<input class="edit-input"
+id="edit_${f[1]}"
+value="${s[f[1]]||""}">`
+
+:
+
+`<span style="font-weight:600;">
+${s[f[1]]||"Not Set"}
+</span>`
+
+}
+
+</div>
+
+`).join("");
+
+}
+
+
+
+/* EDIT */
+
+window.toggleEdit=async function(){
+
+const s=allStudents.find(u=>u.id===currentEditingDocId);
+
+if(!isEditMode){
+
+isEditMode=true;
+renderDetails(s);
+modalActionBtn.innerHTML="Save Changes";
+modalActionBtn.className="action-btn save-mode-btn";
+return;
+}
+
+modalActionBtn.innerText="Saving...";
+
+try{
+
+await updateDoc(
+doc(db,"users",currentEditingDocId),
+{
+fullName:edit_fullName.value,
+class:edit_class.value,
+gender:edit_gender.value,
+dob:edit_dob.value,
+parentName:edit_parentName.value,
+parentPhone:edit_parentPhone.value,
+address:edit_address.value
+}
+);
+
+alert("Student Updated!");
+
+modalOverlay.style.display="none";
+
+loadStudents();
+
+}catch(err){
+
+alert(err.message);
+
+}
+
+};
+
+
+
+/* DELETE */
+
+window.deleteStudent=async function(e,id){
+
+e.stopPropagation();
+
+if(!confirm("Delete student permanently?"))
+return;
+
+await deleteDoc(doc(db,"users",id));
+
+loadStudents();
+
+};
+
+
+
+/* FILTER */
+
+window.filterStudents=function(){
+
+const q=searchInput.value.toLowerCase();
+const cls=classFilter.value;
+
+document.querySelectorAll(".student-card")
+.forEach(card=>{
+
+const name=card.dataset.name;
+const c=card.dataset.class;
+
+card.style.display=
+(name.includes(q) &&
+(cls==="All"||cls===c))
+?"flex":"none";
+
+});
+
+};
+
+
+
+window.closeModal=function(){
+modalOverlay.style.display="none";
+};
+
+loadStudents();
+
+</script>
+
 </body>
 </html>
