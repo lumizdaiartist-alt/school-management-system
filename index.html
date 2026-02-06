@@ -1,187 +1,213 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Benaiah Secondary Portal</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        :root { --chocolate:#3E2723; --gold:#FFB300; }
-        body {
-            background:#fcfaf5;
-            font-family:'Segoe UI',sans-serif;
-            display:flex;
-            justify-content:center;
-            align-items:center;
-            height:100vh;
-            margin:0;
-        }
-        .login-container {
-            background:white;
-            padding:40px;
-            border-radius:20px;
-            box-shadow:0 10px 25px rgba(0,0,0,0.1);
-            width:100%;
-            max-width:350px;
-            text-align:center;
-            position: relative;
-        }
-        .logo-placeholder {
-            background:var(--chocolate);
-            color:var(--gold);
-            width:60px;
-            height:60px;
-            line-height:60px;
-            border-radius:50%;
-            margin:0 auto 15px;
-            font-weight:bold;
-            font-size:20px;
-        }
-        .input-group { text-align:left; margin-bottom:15px; }
-        label { font-size:12px; font-weight:600; display: block; margin-bottom: 5px; }
-        input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-sizing: border-box; /* Ensures padding doesn't break width */
-        }
-        .login-btn {
-            width:100%;
-            padding:12px;
-            background:var(--chocolate);
-            color:white;
-            border:none;
-            border-radius:8px;
-            font-weight:bold;
-            cursor:pointer;
-            transition: opacity 0.3s;
-        }
-        .login-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-        
-        /* Loading Overlay */
-        #loader {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Benaiah Secondary Portal</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+:root { --chocolate:#3E2723; --gold:#FFB300; }
+
+body{
+    background:#fcfaf5;
+    font-family:'Segoe UI',sans-serif;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    margin:0;
+}
+
+.login-container{
+    background:white;
+    padding:40px;
+    border-radius:20px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.1);
+    width:100%;
+    max-width:350px;
+    text-align:center;
+}
+
+.logo-placeholder{
+    background:var(--chocolate);
+    color:var(--gold);
+    width:60px;
+    height:60px;
+    line-height:60px;
+    border-radius:50%;
+    margin:0 auto 15px;
+    font-weight:bold;
+    font-size:20px;
+}
+
+.input-group{
+    text-align:left;
+    margin-bottom:15px;
+}
+
+label{
+    font-size:12px;
+    font-weight:600;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    border:1px solid #ddd;
+    border-radius:8px;
+}
+
+.login-btn{
+    width:100%;
+    padding:12px;
+    background:var(--chocolate);
+    color:white;
+    border:none;
+    border-radius:8px;
+    font-weight:bold;
+    cursor:pointer;
+}
+</style>
 </head>
+
 <body>
 
-    <div id="loader">Checking session...</div>
+<div class="login-container">
 
-    <div class="login-container">
-        <div class="logo-placeholder">BIS</div>
-        <h2>Benaiah International School</h2>
-        <p style="font-size:11px;color:#777;margin-bottom:25px;">
-            "Courage, Initiative and Success"
-        </p>
+<div class="logo-placeholder">BIS</div>
 
-        <form id="loginForm">
-            <div class="input-group">
-                <label>Email</label>
-                <input type="email" id="email" required placeholder="email@school.com">
-            </div>
-            <div class="input-group">
-                <label>Password</label>
-                <input type="password" id="password" required placeholder="••••••••">
-            </div>
-            <button type="submit" class="login-btn" id="submitBtn">Secure Login</button>
-        </form>
-    </div>
+<h2>Benaiah International School</h2>
+<p style="font-size:11px;color:#777;margin-bottom:25px;">
+"Courage, Initiative and Success"
+</p>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, setPersistence, browserLocalPersistence, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+<form id="loginForm">
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyBIQog_gsN6U-2JXwpv8CBSMLuP92W6a7Q",
-            authDomain: "school-management-system-2f7de.firebaseapp.com",
-            projectId: "school-management-system-2f7de",
-            storageBucket: "school-management-system-2f7de.appspot.com",
-            messagingSenderId: "518987437886",
-            appId: "1:518987437886:web:3d451457c4a6457e007e6f"
-        };
+<div class="input-group">
+<label>Username / ID</label>
+<input type="text" id="username" required>
+</div>
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const loader = document.getElementById('loader');
+<div class="input-group">
+<label>Password</label>
+<input type="password" id="password" required>
+</div>
 
-        // 1. Session persistence
-        await setPersistence(auth, browserLocalPersistence);
+<button class="login-btn">Secure Login</button>
 
-        // 2. Auth State Listener (The Auto-Login Check)
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                console.log("Session found, fetching profile...");
-                const ref = doc(db, "users", user.uid);
-                const snap = await getDoc(ref);
-                if (snap.exists()) {
-                    routeUser(snap.data());
-                } else {
-                    loader.style.display = 'none';
-                    alert("Profile not found in database.");
-                }
-            } else {
-                // No user logged in, hide loader to show login form
-                loader.style.display = 'none';
-            }
-        });
+</form>
 
-        /* 🔐 MANUAL LOGIN */
-        document.getElementById("loginForm").addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById("submitBtn");
-            const email = document.getElementById("email").value.trim();
-            const password = document.getElementById("password").value.trim();
+</div>
 
-            btn.disabled = true;
-            btn.innerText = "Authenticating...";
+<!-- 🔥 FIREBASE LOGIN -->
+<script type="module">
 
-            try {
-                const cred = await signInWithEmailAndPassword(auth, email, password);
-                const ref = doc(db, "users", cred.user.uid);
-                const snap = await getDoc(ref);
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
-                if (!snap.exists()) {
-                    throw new Error("User profile missing in Firestore.");
-                }
-                routeUser(snap.data());
-            } catch (err) {
-                console.error(err);
-                alert("Login Failed: " + err.message);
-                btn.disabled = false;
-                btn.innerText = "Secure Login";
-            }
-        });
+import {
+getFirestore,
+collection,
+getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        /* 🚀 ROLE ROUTER */
-        function routeUser(userData) {
-            // Log exactly what the code sees to help you debug
-            console.log("Routing user with data:", userData);
-            
-            const role = (userData.role || "").toLowerCase().trim();
 
-            if (role === "proprietress") {
-                location.href = "proprietress_dash.html";
-            } else if (role === "principal") {
-                location.href = "principal_dash.html";
-            } else if (role === "teacher") {
-                location.href = "teacher_dash.html";
-            } else if (role === "student") {
-                location.href = "student_dash.html";
-            } else {
-                loader.style.display = 'none';
-                alert("Unrecognized role: " + role + ". Please contact Admin.");
-            }
-        }
-    </script>
+const firebaseConfig = {
+apiKey: "AIzaSyBIQog_gsN6U-2JXwpv8CBSMLuP92W6a7Q",
+authDomain: "school-management-system-2f7de.firebaseapp.com",
+projectId: "school-management-system-2f7de",
+storageBucket: "school-management-system-2f7de.firebasestorage.app",
+messagingSenderId: "518987437886",
+appId: "1:518987437886:web:3d451457c4a6457e007e6f"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+
+
+document.getElementById("loginForm")
+.addEventListener("submit", async (e)=>{
+
+e.preventDefault();
+
+const inputUsername =
+document.getElementById("username")
+.value.trim()
+.toLowerCase();
+
+const inputPassword =
+document.getElementById("password")
+.value.trim();
+
+try{
+
+// ✅ Pull ALL users (more reliable than where)
+const snapshot = await getDocs(collection(db,"users"));
+
+let matchedUser = null;
+
+snapshot.forEach(doc=>{
+
+const data = doc.data();
+
+// normalize username
+const dbUsername =
+(data.username || "")
+.trim()
+.toLowerCase();
+
+if(
+dbUsername === inputUsername &&
+data.password === inputPassword
+){
+matchedUser = data;
+}
+
+});
+
+if(!matchedUser){
+alert("Invalid username or password");
+return;
+}
+
+
+// ✅ SAVE SESSION
+localStorage.setItem(
+"currentUser",
+JSON.stringify(matchedUser)
+);
+
+
+// ✅ REDIRECT
+const role = matchedUser.role.toLowerCase();
+
+if(role === "proprietress")
+location.href = "proprietress_dash.html";
+
+else if(role === "principal")
+location.href = "principal_dash.html";
+
+else if(role === "teacher")
+location.href = "teacher_dash.html";
+
+else if(role === "student")
+location.href = "student_dash.html";
+
+else
+alert("No dashboard assigned");
+
+}catch(err){
+
+console.error("LOGIN ERROR:",err);
+alert("Login failed — check console");
+
+}
+
+});
+
+</script>
+
 </body>
-</html>
+    </html>
