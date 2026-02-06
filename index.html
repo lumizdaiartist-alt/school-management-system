@@ -139,22 +139,36 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 
-// ✅ KEEP USERS LOGGED IN
+// ⭐ KEEP USERS LOGGED IN
 await setPersistence(auth, browserLocalPersistence);
 
 
+// 🔥 WAIT FOR FIREBASE TO FINISH RESTORING SESSION
+let authChecked = false;
 
-/* ⭐ AUTO LOGIN IF SESSION EXISTS */
 onAuthStateChanged(auth, async (user)=>{
 
+if(authChecked) return;
+authChecked = true;
+
+// no session → stay on login
 if(!user) return;
+
+try{
 
 const ref = doc(db,"users",user.uid);
 const snap = await getDoc(ref);
 
-if(!snap.exists()) return;
+if(!snap.exists()){
+console.error("User profile missing.");
+return;
+}
 
 routeUser(snap.data());
+
+}catch(err){
+console.error(err);
+}
 
 });
 
