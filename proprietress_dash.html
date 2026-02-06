@@ -273,3 +273,56 @@
     </script>
 </body>
 </html>
+ss) users[userIndex].password = newPass;
+                localStorage.setItem('bis_users', JSON.stringify(users));
+
+                currentUser.fullName = newName;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+                alert("Profile Updated!");
+                location.reload();
+            }
+        }
+
+        function editTerm() {
+            const newTerm = prompt("Enter Current Term:", document.getElementById('displayTerm').innerText);
+            const newSession = prompt("Enter Current Session:", "2025/2026");
+            if (newTerm) document.getElementById('displayTerm').innerText = newTerm;
+            if (newSession) document.getElementById('displaySession').innerText = "Current Session: " + newSession;
+            localStorage.setItem('bis_term', newTerm);
+            localStorage.setItem('bis_session', newSession);
+        }
+
+        function refreshStats() {
+            const localUsers = JSON.parse(localStorage.getItem('bis_users')) || [];
+            const students = localUsers.filter(u => u.role === 'student').length;
+            const teachers = localUsers.filter(u => u.role === 'teacher').length;
+            const admins = localUsers.filter(u => u.role === 'principal' || u.role === 'admin').length;
+            
+            document.getElementById('studentCount').innerText = students;
+            document.getElementById('teacherCount').innerText = teachers;
+            document.getElementById('adminCount').innerText = admins;
+        }
+
+        window.onload = function() {
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            if (user) {
+                document.getElementById('welcomeName').innerText = "Welcome " + user.fullName;
+                document.getElementById('sideMenuName').innerText = user.fullName;
+                document.getElementById('editPropName').value = user.fullName;
+            }
+
+            const savedTerm = localStorage.getItem('bis_term');
+            const savedSession = localStorage.getItem('bis_session');
+            if (savedTerm) document.getElementById('displayTerm').innerText = savedTerm;
+            if (savedSession) document.getElementById('displaySession').innerText = "Current Session: " + savedSession;
+            refreshStats();
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
