@@ -4,13 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Principal Dashboard - BIS</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
 <style>
-/* KEEPING YOUR ORIGINAL DESIGN */
-:root {
-    --chocolate: #3E2723;
-    --cream: #FFF8E1;
-    --gold: #FFB300;
+
+:root{
+--chocolate:#3E2723;
+--gold:#FFB300;
 }
 
 body{
@@ -19,62 +21,110 @@ font-family:'Segoe UI',sans-serif;
 background:#fcfaf5;
 }
 
+/* NAV */
 .navbar{
 background:var(--chocolate);
 color:white;
-padding:15px 20px;
+padding:18px 25px;
 display:flex;
 justify-content:space-between;
+align-items:center;
 }
 
-.main{
+.logout-btn{
+background:#d32f2f;
+border:none;
+color:white;
+padding:10px 16px;
+border-radius:8px;
+cursor:pointer;
+font-weight:bold;
+}
+
+/* CONTENT */
+.container{
 padding:30px;
+max-width:900px;
+margin:auto;
 }
 
 .card{
 background:white;
-padding:20px;
-border-radius:14px;
-box-shadow:0 4px 10px rgba(0,0,0,.05);
+padding:25px;
+border-radius:16px;
+box-shadow:0 6px 14px rgba(0,0,0,.06);
 margin-bottom:20px;
 }
+
+h2{
+margin:0 0 5px;
+}
+
+.stat-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:20px;
+}
+
+.stat{
+font-size:28px;
+font-weight:bold;
+color:var(--chocolate);
+}
+
+.label{
+color:gray;
+}
+
 </style>
 </head>
 
 <body>
 
 <div class="navbar">
-<h3>BIS Principal Portal</h3>
-<button onclick="logout()" style="background:#d32f2f;border:none;color:white;padding:8px 14px;border-radius:8px;cursor:pointer;">
+<h2>BIS Principal Portal</h2>
+
+<button class="logout-btn" onclick="logout()">
 Logout
 </button>
 </div>
 
-<div class="main">
+
+<div class="container">
 
 <div class="card">
 <h2 id="principalName">Loading...</h2>
 <p id="principalEmail"></p>
 </div>
 
+<div class="stat-grid">
+
 <div class="card">
-<h3>Students: <span id="studentCount">0</span></h3>
-<h3>Teachers: <span id="teacherCount">0</span></h3>
+<div class="stat" id="studentCount">0</div>
+<div class="label">Students</div>
+</div>
+
+<div class="card">
+<div class="stat" id="teacherCount">0</div>
+<div class="label">Teachers</div>
 </div>
 
 </div>
+</div>
+
 
 
 <script type="module">
 
-/* 🔥 FIREBASE */
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
 getAuth,
 onAuthStateChanged,
 signOut
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 import {
 getFirestore,
@@ -82,13 +132,18 @@ doc,
 getDoc,
 collection,
 getDocs
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 
+// 🔥 USE SAME CONFIG AS LOGIN
 const firebaseConfig = {
-apiKey: "YOUR_KEY",
-authDomain: "YOUR_DOMAIN",
-projectId: "YOUR_ID",
+apiKey: "AIzaSyBIQog_gsN6U-2JXwpv8CBSMLuP92W6a7Q",
+authDomain: "school-management-system-2f7de.firebaseapp.com",
+projectId: "school-management-system-2f7de",
+storageBucket: "school-management-system-2f7de.appspot.com",
+messagingSenderId: "518987437886",
+appId: "1:518987437886:web:3d451457c4a6457e007e6f"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -97,57 +152,54 @@ const db = getFirestore(app);
 
 
 
-/* 🔐 FORCE LOGIN */
-onAuthStateChanged(auth, async (user) => {
+/* 🔐 AUTH GUARD */
+onAuthStateChanged(auth, async (user)=>{
 
 if(!user){
-window.location.href = "index.html";
+location.href="index.html";
 return;
 }
 
 try{
 
-// get Firestore profile
-const userRef = doc(db,"users",user.uid);
-const snap = await getDoc(userRef);
+const ref = doc(db,"users",user.uid);
+const snap = await getDoc(ref);
 
 if(!snap.exists()){
-alert("No dashboard assigned.");
 await signOut(auth);
-window.location.href="index.html";
+location.href="index.html";
 return;
 }
 
 const data = snap.data();
 
 if(data.role !== "principal"){
-alert("Access denied.");
 await signOut(auth);
-window.location.href="index.html";
+location.href="index.html";
 return;
 }
 
-// ✅ show info
-document.getElementById("principalName").innerText =
-"Welcome, " + (data.fullName || "Principal");
+// ✅ Populate UI
+document.getElementById("principalName")
+.innerText = "Welcome, " + (data.fullName || "Principal");
 
-document.getElementById("principalEmail").innerText =
-user.email;
+document.getElementById("principalEmail")
+.innerText = user.email;
 
 
-// 📊 LOAD STATS
+// LOAD STATS
 loadStats();
 
 }catch(err){
 console.error(err);
-window.location.href="index.html";
+location.href="index.html";
 }
 
 });
 
 
 
-/* 📊 COUNT USERS */
+/* 📊 LOAD COUNTS */
 async function loadStats(){
 
 const snapshot = await getDocs(collection(db,"users"));
@@ -156,10 +208,12 @@ let students=0;
 let teachers=0;
 
 snapshot.forEach(doc=>{
+
 const role = doc.data().role;
 
 if(role==="student") students++;
 if(role==="teacher") teachers++;
+
 });
 
 document.getElementById("studentCount").innerText=students;
@@ -174,113 +228,11 @@ window.logout = async function(){
 
 await signOut(auth);
 
-window.location.href="index.html";
+location.href="index.html";
 
 };
 
 </script>
 
-</body>
-</html>n updateSecurity(){
-    const newName=document.getElementById('editPrincipalName').value;
-    let users=JSON.parse(localStorage.getItem('bis_users'))||[];
-    let currentUser=JSON.parse(localStorage.getItem('currentUser'));
-    const idx=users.findIndex(u=>u.username===currentUser.username);
-
-    if(idx!==-1){
-        users[idx].fullName=newName;
-        currentUser.fullName=newName;
-        localStorage.setItem('bis_users',JSON.stringify(users));
-        localStorage.setItem('currentUser',JSON.stringify(currentUser));
-        location.reload();
-    }
-}
-
-function logout(){
-    localStorage.removeItem('currentUser');
-    window.location.href='index.html';
-}
-
-function openAnnouncementModal(){
-    document.getElementById('announcementModal').style.display='flex';
-}
-
-function closeAnnouncementModal(){
-    document.getElementById('announcementModal').style.display='none';
-}
-</script>
-
-<script type="module">
-/* --- FIREBASE ENGINE --- */
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { 
-    getFirestore, 
-    collection, 
-    addDoc, 
-    serverTimestamp,
-    getDocs 
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyBIQog_gsN6U-2JXwpv8CBSMLuP92W6a7Q",
-  authDomain: "school-management-system-2f7de.firebaseapp.com",
-  projectId: "school-management-system-2f7de",
-  storageBucket: "school-management-system-2f7de.firebasestorage.app",
-  messagingSenderId: "518987437886",
-  appId: "1:518987437886:web:3d451457c4a6457e007e6f",
-  measurementId: "G-KW2273D3C2"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-/* 📊 DASHBOARD STATS: FETCHING FROM 'users' COLLECTION */
-window.refreshStats = async function(){
-    try {
-        const snapshot = await getDocs(collection(db, "users")); 
-        let students = 0;
-        let teachers = 0;
-
-        snapshot.forEach(doc => {
-            const data = doc.data();
-            // Check the role field in each user document
-            if(data.role === "student") students++;
-            else if(data.role === "teacher") teachers++;
-        });
-
-        document.getElementById("studentCount").innerText = students;
-        document.getElementById("teacherCount").innerText = teachers;
-        console.log("Stats loaded: ", {students, teachers});
-
-    } catch(err) {
-        console.error("Firebase Count Error:", err);
-    }
-};
-
-/* 📣 POST ANNOUNCEMENT TO FIREBASE */
-window.postAnnouncement = async function () {
-    const text = document.getElementById('announcementText').value.trim();
-    if (!text) {
-        alert("Announcement cannot be empty.");
-        return;
-    }
-
-    try {
-        await addDoc(collection(db, "announcements"), {
-            message: text,
-            postedBy: "Principal",
-            createdAt: serverTimestamp()
-        });
-
-        document.getElementById('announcementText').value = "";
-        closeAnnouncementModal();
-        alert("Announcement sent successfully! ✅");
-
-    } catch (err) {
-        alert("Failed to send announcement ❌");
-        console.error(err);
-    }
-};
-</script>
 </body>
 </html>
