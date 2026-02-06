@@ -112,7 +112,8 @@ import {
 getAuth,
 signInWithEmailAndPassword,
 setPersistence,
-browserLocalPersistence
+browserLocalPersistence,
+onAuthStateChanged
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
@@ -138,10 +139,26 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 
-// ✅ Ensure persistence BEFORE login
-setPersistence(auth, browserLocalPersistence)
-.then(()=>{
+// ✅ KEEP USER LOGGED IN
+await setPersistence(auth, browserLocalPersistence);
 
+
+// ⭐ AUTO LOGIN if already authenticated
+onAuthStateChanged(auth, async (user)=>{
+
+if(!user) return;
+
+const ref = doc(db,"users",user.uid);
+const snap = await getDoc(ref);
+
+if(!snap.exists()) return;
+
+redirectUser(snap.data());
+
+});
+
+
+// 🔥 LOGIN
 document.getElementById("loginForm")
 .addEventListener("submit", async (e)=>{
 
@@ -155,53 +172,20 @@ document.getElementById("password").value.trim();
 
 try{
 
-// 🔥 AUTH LOGIN
-const userCredential =
+const cred =
 await signInWithEmailAndPassword(auth,email,password);
 
-const uid = userCredential.user.uid;
+const uid = cred.user.uid;
 
+const ref = doc(db,"users",uid);
+const snap = await getDoc(ref);
 
-// 🔥 GET USER PROFILE
-const userRef = doc(db,"users",uid);
-const userSnap = await getDoc(userRef);
-
-if(!userSnap.exists()){
+if(!snap.exists()){
 alert("User profile missing. Contact administrator.");
 return;
 }
 
-const userData = userSnap.data();
-
-localStorage.setItem(
-"currentUser",
-JSON.stringify(userData)
-);
-
-
-// 🔥 REDIRECT
-switch(userData.role){
-
-case "proprietress":
-location.href="proprietress_dash.html";
-break;
-
-case "principal":
-location.href="principal_dash.html";
-break;
-
-case "teacher":
-location.href="teacher_dash.html";
-break;
-
-case "student":
-location.href="student_dash.html";
-break;
-
-default:
-alert("No dashboard assigned");
-
-}
+redirectUser(snap.data());
 
 }catch(err){
 
@@ -214,21 +198,47 @@ else if(err.code === "auth/wrong-password")
 alert("Incorrect password.");
 
 else if(err.code === "auth/invalid-email")
-alert("Invalid email format.");
+alert("Invalid email.");
 
 else
-alert("Login failed. Try again.");
+alert("Login failed.");
 
 }
 
 });
 
-})
-.catch(err=>{
-console.error("Persistence error:",err);
-});
+
+// 🔥 SMART REDIRECT
+function redirectUser(userData){
+
+localStorage.setItem(
+"currentUser",
+JSON.stringify(userData)
+);
+
+// normalize role automatically
+const role = (userData.role || "")
+.toLowerCase()
+.trim();
+
+if(role.includes("propriet"))
+location.href="proprietress_dash.html";
+
+else if(role.includes("principal"))
+location.href="principal_dash.html";
+
+else if(role.includes("teacher"))
+location.href="teacher_dash.html";
+
+else if(role.includes("student"))
+location.href="student_dash.html";
+
+else
+alert("No dashboard assigned — check role field in Firestore.");
+
+}
 
 </script>
 
 </body>
-    </html>
+</html>
