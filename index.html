@@ -113,7 +113,7 @@ getAuth,
 signInWithEmailAndPassword,
 setPersistence,
 browserLocalPersistence,
-onAuthStateChanged
+signOut
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
@@ -139,23 +139,11 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 
-// ✅ KEEP USER LOGGED IN
+// 🔐 FORCE LOGIN EVERY VISIT
+await signOut(auth);
+
+// keep persistence AFTER logout
 await setPersistence(auth, browserLocalPersistence);
-
-
-// ⭐ AUTO LOGIN if already authenticated
-onAuthStateChanged(auth, async (user)=>{
-
-if(!user) return;
-
-const ref = doc(db,"users",user.uid);
-const snap = await getDoc(ref);
-
-if(!snap.exists()) return;
-
-redirectUser(snap.data());
-
-});
 
 
 // 🔥 LOGIN
@@ -172,11 +160,14 @@ document.getElementById("password").value.trim();
 
 try{
 
+// AUTH LOGIN
 const cred =
 await signInWithEmailAndPassword(auth,email,password);
 
 const uid = cred.user.uid;
 
+
+// GET FIRESTORE PROFILE
 const ref = doc(db,"users",uid);
 const snap = await getDoc(ref);
 
@@ -185,7 +176,33 @@ alert("User profile missing. Contact administrator.");
 return;
 }
 
-redirectUser(snap.data());
+const userData = snap.data();
+
+localStorage.setItem(
+"currentUser",
+JSON.stringify(userData)
+);
+
+
+// ROLE NORMALIZATION
+const role = (userData.role || "")
+.toLowerCase()
+.trim();
+
+if(role.includes("propriet"))
+location.href="proprietress_dash.html";
+
+else if(role.includes("principal"))
+location.href="principal_dash.html";
+
+else if(role.includes("teacher"))
+location.href="teacher_dash.html";
+
+else if(role.includes("student"))
+location.href="student_dash.html";
+
+else
+alert("No dashboard assigned — check role field in Firestore.");
 
 }catch(err){
 
@@ -206,37 +223,6 @@ alert("Login failed.");
 }
 
 });
-
-
-// 🔥 SMART REDIRECT
-function redirectUser(userData){
-
-localStorage.setItem(
-"currentUser",
-JSON.stringify(userData)
-);
-
-// normalize role automatically
-const role = (userData.role || "")
-.toLowerCase()
-.trim();
-
-if(role.includes("propriet"))
-location.href="proprietress_dash.html";
-
-else if(role.includes("principal"))
-location.href="principal_dash.html";
-
-else if(role.includes("teacher"))
-location.href="teacher_dash.html";
-
-else if(role.includes("student"))
-location.href="student_dash.html";
-
-else
-alert("No dashboard assigned — check role field in Firestore.");
-
-}
 
 </script>
 
